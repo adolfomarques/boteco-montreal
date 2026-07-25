@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AdminTopBar from '@/components/admin/AdminTopBar';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import { supabase } from '@/lib/supabase';
 import { isSupabaseConfigured } from '@/components/admin/AuthProvider';
 
 const STORAGE_KEY = 'boteco_admin_reservations';
@@ -75,12 +76,21 @@ function AdminReservationsPage() {
   const [synced, setSynced] = useState(false);
 
   useEffect(() => {
-    const data = loadLocal();
-    setReservations(data);
-    setLoading(false);
-    if (!synced) {
-      syncToApi(data);
-      setSynced(true);
+    if (isSupabaseConfigured()) {
+      supabase.from('reservations').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
+        if (!error && data) {
+          setReservations(data as unknown as ReservationRow[]);
+        }
+        setLoading(false);
+      });
+    } else {
+      const data = loadLocal();
+      setReservations(data);
+      setLoading(false);
+      if (!synced) {
+        syncToApi(data);
+        setSynced(true);
+      }
     }
   }, [synced]);
 
@@ -89,6 +99,11 @@ function AdminReservationsPage() {
       r.id === id ? { ...r, status: newStatus } : r
     );
     setReservations(updated);
+    if (isSupabaseConfigured()) {
+      supabase.from('reservations').update({ status: newStatus }).eq('id', id).then(({ error }) => {
+        if (error) console.error(error);
+      });
+    }
     saveLocal(updated);
     syncToApi(updated);
   }
@@ -97,6 +112,11 @@ function AdminReservationsPage() {
     if (!confirm('Tem certeza que deseja excluir esta reserva?')) return;
     const updated = reservations.filter((r) => r.id !== id);
     setReservations(updated);
+    if (isSupabaseConfigured()) {
+      supabase.from('reservations').delete().eq('id', id).then(({ error }) => {
+        if (error) console.error(error);
+      });
+    }
     saveLocal(updated);
     syncToApi(updated);
   }
