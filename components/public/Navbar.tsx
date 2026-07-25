@@ -103,7 +103,7 @@ export default function Navbar() {
             <img
               alt="Boteco Montreal"
               className="w-full h-full object-cover"
-              src="/boteco-logo.svg"
+              src="/boteco-logo2-clean.png"
             />
           </div>
           <span className="font-headline-md text-[20px] tracking-tighter text-on-surface uppercase">
@@ -183,7 +183,7 @@ export default function Navbar() {
                 <img
                   alt="Boteco Montreal"
                   className="w-full h-full object-cover"
-                  src="/boteco-logo.svg"
+                  src="/boteco-logo2-clean.png"
                 />
               </div>
               <span className="font-headline-sm text-[16px] tracking-tighter text-on-surface uppercase">
