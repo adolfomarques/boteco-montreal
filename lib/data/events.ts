@@ -12,7 +12,7 @@ export const WEEKLY_EVENTS = [
     time_range: '19h - 23h',
     icon: 'mic_external_on',
     color: 'secondary',
-    image_url: '/IMG_8301.jpg',
+    image_url: '/carrosel/IMG_8301.jpg',
   },
   {
     day_label_pt: 'SÁBADO',

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import Button from '../ui/Button';
 import { useLanguage } from '../../lib/i18n/LanguageProvider';
@@ -100,14 +99,11 @@ export default function Navbar() {
       </div>
       <div className="flex justify-between items-center container-max h-16 md:h-20">
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative h-10 w-10 rounded-full overflow-hidden">
-            <Image
+          <div className="relative h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
+            <img
               alt="Boteco Montreal"
-              className="object-cover"
-              src="/boteco-logo2-clean.png"
-              fill
-              sizes="40px"
-              priority
+              className="w-full h-full object-cover"
+              src="/boteco-logo.svg"
             />
           </div>
           <span className="font-headline-md text-[20px] tracking-tighter text-on-surface uppercase">
@@ -183,13 +179,11 @@ export default function Navbar() {
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-2">
             <Link href="/" className="flex items-center gap-2.5" onClick={() => setMobileMenuOpen(false)}>
-              <div className="relative h-8 w-8 rounded-full overflow-hidden">
-                <Image
+              <div className="relative h-8 w-8 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
+                <img
                   alt="Boteco Montreal"
-                  className="object-cover"
-                  src="/boteco-logo2-clean.png"
-                  fill
-                  sizes="32px"
+                  className="w-full h-full object-cover"
+                  src="/boteco-logo.svg"
                 />
               </div>
               <span className="font-headline-sm text-[16px] tracking-tighter text-on-surface uppercase">

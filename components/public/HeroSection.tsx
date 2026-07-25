@@ -93,14 +93,11 @@ export default function HeroSection() {
               <div className="absolute w-44 h-44 lg:w-[300px] lg:h-[300px] rounded-full bg-gradient-to-tr from-cyan-400/20 via-purple-500/20 to-transparent blur-2xl translate-y-4" />
               <div className="absolute w-32 h-32 lg:w-[200px] lg:h-[200px] rounded-full bg-gradient-to-bl from-secondary/30 via-transparent to-tertiary/25 blur-xl -translate-y-2" />
             </div>
-            <div className="w-48 h-48 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-secondary/20 shadow-2xl shadow-secondary/10 relative z-10">
-              <Image
-                src="/boteco-logo2-clean.png"
+            <div className="w-48 h-48 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-secondary/20 shadow-2xl shadow-secondary/10 relative z-10 flex items-center justify-center bg-gradient-to-br from-secondary/5 to-tertiary/5">
+              <img
+                src="/boteco-logo.svg"
                 alt="Boteco Montreal"
-                width={384}
-                height={384}
-          className="w-full h-full object-contain"
-                priority
+                className="w-3/4 h-3/4 object-contain"
               />
             </div>
           </div>

@@ -130,7 +130,7 @@ export default async function EventosPage() {
             <div className="relative w-full max-w-[480px] aspect-[3/4] bg-surface-container-high rounded-2xl overflow-hidden shadow-2xl border border-white/5">
               <Image
                 className="object-cover"
-                src="/IMG_8301.jpg"
+                src="/carrosel/IMG_8301.jpg"
                 alt={t('eventosPage.heroImageAlt')}
                 fill
                 sizes="(max-width: 480px) 100vw, 480px"
