@@ -102,8 +102,8 @@ export default function Navbar() {
           <div className="relative h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
             <img
               alt="Boteco Montreal"
-              className="w-full h-full object-cover"
               src="/boteco-logo2-clean.png"
+              className="w-full h-full object-cover"
             />
           </div>
           <span className="font-headline-md text-[20px] tracking-tighter text-on-surface uppercase">
@@ -182,8 +182,8 @@ export default function Navbar() {
               <div className="relative h-8 w-8 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
                 <img
                   alt="Boteco Montreal"
-                  className="w-full h-full object-cover"
                   src="/boteco-logo2-clean.png"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <span className="font-headline-sm text-[16px] tracking-tighter text-on-surface uppercase">

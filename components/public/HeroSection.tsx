@@ -97,7 +97,7 @@ export default function HeroSection() {
               <img
                 src="/boteco-logo2-clean.png"
                 alt="Boteco Montreal"
-                className="w-3/4 h-3/4 object-contain"
+                className="w-full h-full object-contain"
               />
             </div>
           </div>
