@@ -110,9 +110,7 @@ function mapToLocal(item: Record<string, unknown>): Record<string, unknown> {
     tagline_pt: (item.tagline_pt as string) || null,
     tagline_fr: (item.tagline_fr as string) || null,
     tagline_en: (item.tagline_en as string) || null,
-    portion_pt: null,
-    portion_fr: null,
-    portion_en: null,
+    portion: (item.portion as string) || null,
   };
 }
 

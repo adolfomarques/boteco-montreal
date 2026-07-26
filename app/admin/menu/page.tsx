@@ -334,13 +334,25 @@ export default function AdminMenuPage() {
             if (catSlug === 'desserts') { catMap[cats[2]?.id] = data.id; catMap['cat-4'] = data.id; }
           }
         }
-        const rows = menuItems.filter(i => i.name_pt).map(i => ({
-          category_id: catMap[i.category_id] || catMap[cats[0]?.id] || '',
-          name_pt: i.name_pt, name_fr: i.name_fr, name_en: i.name_en,
-          description_pt: i.description_pt, description_fr: i.description_fr, description_en: i.description_en,
-          price: i.price, image_url: i.image_url || null,
-          featured: i.featured ?? false, sort_order: i.sort_order ?? 0, active: i.active ?? true,
-        }));
+        // Preserve fields the admin UI doesn't manage (badge, portion, tagline)
+        const { data: existingItems } = await supabase
+          .from('menu_items')
+          .select('name_pt, badge_pt, badge_fr, badge_en, portion, tagline_pt, tagline_fr, tagline_en');
+        const existingMap = new Map((existingItems || []).map((e: any) => [e.name_pt, e]));
+
+        const rows = menuItems.filter(i => i.name_pt).map(i => {
+          const existing = existingMap.get(i.name_pt);
+          return {
+            category_id: catMap[i.category_id] || catMap[cats[0]?.id] || '',
+            name_pt: i.name_pt, name_fr: i.name_fr, name_en: i.name_en,
+            description_pt: i.description_pt, description_fr: i.description_fr, description_en: i.description_en,
+            price: i.price, image_url: i.image_url || null,
+            badge_pt: existing?.badge_pt ?? null, badge_fr: existing?.badge_fr ?? null, badge_en: existing?.badge_en ?? null,
+            portion: existing?.portion ?? null,
+            tagline_pt: existing?.tagline_pt ?? null, tagline_fr: existing?.tagline_fr ?? null, tagline_en: existing?.tagline_en ?? null,
+            featured: i.featured ?? false, sort_order: i.sort_order ?? 0, active: i.active ?? true,
+          };
+        });
         const { error: delErr } = await supabase.from('menu_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
         if (delErr) { console.error('menu_items clear error:', delErr); return; }
         const { error } = await supabase.from('menu_items').insert(rows);
