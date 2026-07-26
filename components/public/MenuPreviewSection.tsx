@@ -45,6 +45,22 @@ export default function MenuPreviewSection() {
   useEffect(() => {
     async function load() {
       try {
+        const landRes = await fetch('/api/local/landing');
+        if (landRes.ok) {
+          const landData = await landRes.json();
+          if (landData?.items?.length > 0) {
+            const mapped = landData.items.map((item: any) => ({
+              name: item.name_fr || item.name_en || item.name_pt || '',
+              price: '',
+              description: item.description_fr || item.description_en || item.description_pt || '',
+              image: item.image_url || FALLBACK_DISHES[0].image,
+            }));
+            setDishes(mapped);
+            return;
+          }
+        }
+      } catch {}
+      try {
         const res = await fetch('/api/local/menu');
         if (!res.ok) return;
         const data = await res.json();

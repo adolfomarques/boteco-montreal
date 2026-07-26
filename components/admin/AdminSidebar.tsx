@@ -14,6 +14,7 @@ export default function AdminSidebar() {
   const NAV_ITEMS = [
     { href: '/admin/dashboard', label: t('admin.dashboard'), icon: 'dashboard' },
     { href: '/admin/menu', label: t('admin.menuTitle'), icon: 'restaurant_menu' },
+    { href: '/admin/landing', label: 'NOSSA COZINHA', icon: 'flatware' },
     { href: '/admin/events', label: t('admin.eventsTitle'), icon: 'event' },
     { href: '/admin/gallery', label: t('admin.galleryTitle'), icon: 'photo_library' },
     { href: '/admin/reservations', label: t('admin.reservationsTitle'), icon: 'event_seat' },
