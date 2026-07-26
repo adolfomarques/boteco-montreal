@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['*'],
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -17,12 +16,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
+        hostname: 'static.wixstatic.com',
         pathname: '/**',
       },
     ],

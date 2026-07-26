@@ -95,7 +95,7 @@ export default function HeroSection() {
             </div>
             <div className="w-48 h-48 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-secondary/20 shadow-2xl shadow-secondary/10 relative z-10 flex items-center justify-center bg-gradient-to-br from-secondary/5 to-tertiary/5">
               <img
-                src="/boteco-logo2-clean.png"
+                src="/boteco-logo2-clean.webp"
                 alt="Boteco Montreal"
                 className="w-full h-full object-contain"
               />
