@@ -59,7 +59,7 @@ const entrees_featured = [
     description_fr: 'Petit pain br\u00e9silien au fromage, moelleux \u00e0 l\'int\u00e9rieur et croustillant \u00e0 l\'ext\u00e9rieur.',
     description_en: 'Traditional Brazilian cheese bread, soft inside and crispy outside.',
     price: 12,
-    image_url: 'https://images.unsplash.com/photo-1773399159824-5a63848662d2?w=800&q=80&fit=crop&auto=format',
+    image_url: 'https://images.unsplash.com/photo-1677370261616-48751f23f8a2?w=800&q=80&fit=crop&auto=format',
     badge_pt: null, badge_fr: null, badge_en: null,
     portion: null, featured: true,
   },
@@ -101,7 +101,7 @@ const entrees_list = [
     description_fr: 'Crevettes pan\u00e9es et frites, servies avec sauce.',
     description_en: 'Breaded and fried shrimp, served with dipping sauce.',
     price: 18,
-    image_url: 'https://images.unsplash.com/photo-1582993728648-1f29c748e5ad?w=800&q=80&fit=crop&auto=format',
+    image_url: 'https://images.unsplash.com/photo-1641848392621-0df2671dd6c4?w=800&q=80&fit=crop&auto=format',
   },
   {
     name_pt: 'Asa de Frango (6)',
