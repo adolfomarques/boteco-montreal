@@ -192,6 +192,13 @@ export default function AdminEventsPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const record = { ...form, image_url: form.image_url || null };
+    const supabaseRecord = {
+      day_label: record.day_label,
+      title_pt: record.title_pt, title_fr: record.title_fr, title_en: record.title_en,
+      description_pt: record.description_pt, description_fr: record.description_fr, description_en: record.description_en,
+      time_range: record.time_range, icon: record.icon, color: record.color,
+      image_url: record.image_url, sort_order: record.sort_order, active: record.active,
+    };
 
     if (!isSupabaseConfigured()) {
       let updated: EventRow[];
@@ -208,14 +215,14 @@ export default function AdminEventsPage() {
     }
 
     if (editingId) {
-      const { error } = await supabase.from('events').update(record).eq('id', editingId);
+      const { error } = await supabase.from('events').update(supabaseRecord).eq('id', editingId);
       if (error) {
         alert(`Error: ${error.message}`);
         return;
       }
       setEvents((prev) => prev.map((ev) => (ev.id === editingId ? { ...ev, ...record } : ev)));
     } else {
-      const { data, error } = await supabase.from('events').insert(record).select();
+      const { data, error } = await supabase.from('events').insert(supabaseRecord).select();
       if (error) {
         alert(`Error: ${error.message}`);
         return;
