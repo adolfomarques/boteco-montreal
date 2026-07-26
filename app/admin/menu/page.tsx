@@ -330,12 +330,10 @@ export default function AdminMenuPage() {
           if (data) {
             if (catSlug === 'entrees') { catMap[cats[0]?.id] = data.id; catMap['cat-1'] = data.id; }
             if (catSlug === 'plats') { catMap[cats[1]?.id] = data.id; catMap['cat-2'] = data.id; }
-            if (catSlug === 'bebidas') { catMap[cats[2]?.id] = data.id; catMap['cat-3'] = data.id; }
-            if (catSlug === 'desserts') { catMap[cats[3]?.id] = data.id; catMap['cat-4'] = data.id; }
+            if (catSlug === 'bebidas') { catMap[cats[3]?.id] = data.id; catMap['cat-3'] = data.id; }
+            if (catSlug === 'desserts') { catMap[cats[2]?.id] = data.id; catMap['cat-4'] = data.id; }
           }
         }
-        const { error: delErr } = await supabase.from('menu_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        if (delErr) console.error('menu_items clear error:', delErr);
         const rows = menuItems.filter(i => i.name_pt).map(i => ({
           category_id: catMap[i.category_id] || catMap[cats[0]?.id] || '',
           name_pt: i.name_pt, name_fr: i.name_fr, name_en: i.name_en,
@@ -343,6 +341,8 @@ export default function AdminMenuPage() {
           price: i.price, image_url: i.image_url || null,
           featured: i.featured ?? false, sort_order: i.sort_order ?? 0, active: i.active ?? true,
         }));
+        const { error: delErr } = await supabase.from('menu_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        if (delErr) { console.error('menu_items clear error:', delErr); return; }
         const { error } = await supabase.from('menu_items').insert(rows);
         if (error) console.error('menu_items insert error:', error);
       }
