@@ -1,25 +1,37 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import AdminTopBar from '@/components/admin/AdminTopBar';
-import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import type { LandingSettings, LandingItem } from '@/app/api/local/landing/route';
 
-const DEFAULT_ITEM: LandingItem = {
+const EMPTY_ITEM: LandingItem = {
   name_pt: '', name_fr: '', name_en: '',
   description_pt: '', description_fr: '', description_en: '',
-  image_url: '',
+  image_url: '', price: 0,
 };
 
+function Toast({ msg, kind, onClose }: { msg: string; kind: 'success' | 'error'; onClose: () => void }) {
+  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t); }, [onClose]);
+  return (
+    <div className={`fixed top-4 right-4 z-[100] px-5 py-3 rounded-xl shadow-2xl border text-sm font-bold flex items-center gap-3 animate-[slideIn_0.3s_ease-out] ${
+      kind === 'success' ? 'bg-secondary/20 border-secondary/40 text-secondary' : 'bg-error/20 border-error/40 text-error'
+    }`}>
+      <span className="material-symbols-outlined text-sm">{kind === 'success' ? 'check_circle' : 'error'}</span>
+      {msg}
+    </div>
+  );
+}
+
 export default function AdminLandingPage() {
-  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [items, setItems] = useState<LandingItem[]>([{ ...DEFAULT_ITEM }, { ...DEFAULT_ITEM }, { ...DEFAULT_ITEM }]);
-  const [menuItems, setMenuItems] = useState<{ name_pt: string; name_fr: string; name_en: string; image_url: string }[]>([]);
+  const [items, setItems] = useState<LandingItem[]>(() => [EMPTY_ITEM, EMPTY_ITEM, EMPTY_ITEM].map(i => ({ ...i })));
+  const [menuItems, setMenuItems] = useState<LandingItem[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; kind: 'success' | 'error' } | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -34,9 +46,16 @@ export default function AdminLandingPage() {
         }
         if (menuRes.ok) {
           const menu = await menuRes.json();
-          const all: { name_pt: string; name_fr: string; name_en: string; image_url: string }[] = [];
-          for (const item of [...(menu.entrees?.featured || []), ...(menu.entrees?.list || []), ...(menu.plats?.secondary || []), ...(menu.drinks_desserts || [])]) {
-            if (item.name_pt) all.push({ name_pt: item.name_pt, name_fr: item.name_fr || '', name_en: item.name_en || '', image_url: item.image_url || item.image || '' });
+          const all: LandingItem[] = [];
+          for (const item of [
+            ...(menu.entrees?.featured || []), ...(menu.entrees?.list || []),
+            ...(menu.plats?.secondary || []), ...(menu.drinks_desserts || []),
+          ]) {
+            if (item.name_pt) all.push({
+              name_pt: item.name_pt, name_fr: item.name_fr || '', name_en: item.name_en || '',
+              description_pt: item.description_pt || '', description_fr: item.description_fr || '', description_en: item.description_en || '',
+              image_url: item.image_url || item.image || '', price: item.price ?? 0,
+            });
           }
           setMenuItems(all);
         }
@@ -46,28 +65,36 @@ export default function AdminLandingPage() {
     load();
   }, []);
 
-  function updateItem(idx: number, field: keyof LandingItem, value: string) {
-    setItems(prev => {
-      const next = [...prev];
-      next[idx] = { ...next[idx], [field]: value };
-      return next;
-    });
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    }
+    if (openDropdown !== null) {
+      document.addEventListener('mousedown', handleClick);
+      return () => document.removeEventListener('mousedown', handleClick);
+    }
+  }, [openDropdown]);
+
+  function update(idx: number, field: keyof LandingItem, value: string | number) {
+    setItems(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
   }
 
-  function pickFromMenu(idx: number, menuItem: typeof menuItems[0]) {
-    setItems(prev => {
-      const next = [...prev];
-      next[idx] = {
-        name_pt: menuItem.name_pt || next[idx].name_pt,
-        name_fr: menuItem.name_fr || next[idx].name_fr,
-        name_en: menuItem.name_en || next[idx].name_en,
-        description_pt: next[idx].description_pt,
-        description_fr: next[idx].description_fr,
-        description_en: next[idx].description_en,
-        image_url: menuItem.image_url || next[idx].image_url,
-      };
-      return next;
-    });
+  function pickFromMenu(idx: number, mi: LandingItem) {
+    setItems(prev => prev.map((item, i) => i === idx ? {
+      ...item,
+      name_pt: mi.name_pt || item.name_pt,
+      name_fr: mi.name_fr || item.name_fr,
+      name_en: mi.name_en || item.name_en,
+      price: mi.price ?? item.price,
+      image_url: mi.image_url || item.image_url,
+    } : item));
+    setOpenDropdown(null);
+  }
+
+  function resetSlots() {
+    setItems([EMPTY_ITEM, EMPTY_ITEM, EMPTY_ITEM].map(i => ({ ...i })));
   }
 
   async function handleSave() {
@@ -78,19 +105,12 @@ export default function AdminLandingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items } as LandingSettings),
       });
-      if (res.ok) {
-        setToast({ msg: 'Landing page atualizada com sucesso!', kind: 'success' });
-        setTimeout(() => setToast(null), 3000);
-      } else {
-        setToast({ msg: 'Erro ao salvar', kind: 'error' });
-      }
+      setToast({ msg: res.ok ? 'NOSSA COZINHA atualizada!' : 'Erro ao salvar', kind: res.ok ? 'success' : 'error' });
     } catch {
       setToast({ msg: 'Erro ao salvar', kind: 'error' });
     }
     setSaving(false);
   }
-
-  const btnRef = useRef<HTMLButtonElement>(null);
 
   if (loading) {
     return (
@@ -100,7 +120,7 @@ export default function AdminLandingPage() {
           {[1, 2, 3].map(n => (
             <div key={n} className="glass-card rounded-xl p-6 animate-pulse">
               <div className="flex gap-6">
-                <div className="w-32 h-32 bg-surface-container-high rounded-xl" />
+                <div className="w-32 h-32 bg-surface-container-high rounded-xl shrink-0" />
                 <div className="flex-1 space-y-3">
                   <div className="h-6 w-48 bg-surface-container-high rounded" />
                   <div className="h-4 w-32 bg-surface-container-high rounded" />
@@ -117,45 +137,47 @@ export default function AdminLandingPage() {
   return (
     <>
       <AdminTopBar title="NOSSA COZINHA" />
-      {toast && (
-        <div className={`fixed top-4 right-4 z-[100] px-5 py-3 rounded-xl shadow-2xl border text-sm font-bold flex items-center gap-3 ${
-          toast.kind === 'success' ? 'bg-secondary/20 border-secondary/40 text-secondary' : 'bg-error/20 border-error/40 text-error'
-        }`}>
-          <span className="material-symbols-outlined text-sm">{toast.kind === 'success' ? 'check_circle' : 'error'}</span>
-          {toast.msg}
-        </div>
-      )}
+      {toast && <Toast msg={toast.msg} kind={toast.kind} onClose={() => setToast(null)} />}
+
       <div className="p-gutter max-w-container-max w-full mx-auto space-y-6 pb-24">
-        <div className="glass-card rounded-xl p-6 space-y-2">
-          <h2 className="font-headline-sm text-on-surface">NOSSA COZINHA</h2>
-          <p className="text-on-surface-variant text-sm">Gerencie os 3 pratos exibidos na seção NOSSA COZINHA da landing page.</p>
+        <div className="flex items-center justify-between glass-card rounded-xl p-6">
+          <div>
+            <h2 className="font-headline-sm text-on-surface">NOSSA COZINHA</h2>
+            <p className="text-on-surface-variant text-sm mt-1">Gerencie os 3 pratos em destaque na landing page.</p>
+          </div>
+          <button onClick={resetSlots} className="text-sm text-on-surface-variant hover:text-error transition-colors flex items-center gap-1">
+            <span className="material-symbols-outlined text-sm">refresh</span>
+            Limpar
+          </button>
         </div>
 
         {items.map((item, idx) => (
-          <div key={idx} className="glass-card rounded-xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-on-surface flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center text-secondary text-sm font-bold">{idx + 1}</span>
+          <div key={idx} className="glass-card rounded-xl overflow-hidden border border-outline-variant/10">
+            <div className="flex items-center justify-between px-6 py-3 bg-surface-container-high border-b border-outline-variant/5">
+              <h3 className="font-bold text-on-surface flex items-center gap-2 text-sm">
+                <span className="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-xs font-bold">{idx + 1}</span>
                 Prato {idx + 1}
               </h3>
-              <div className="relative">
+              <div ref={openDropdown === idx ? dropdownRef : undefined} className="relative">
                 <button
-                  onClick={() => setSelectedIdx(selectedIdx === idx ? null : idx)}
-                  className="text-xs font-label-caps text-secondary hover:text-secondary-fixed transition-colors flex items-center gap-1"
+                  onClick={() => setOpenDropdown(openDropdown === idx ? null : idx)}
+                  className="text-xs font-label-caps text-secondary hover:text-secondary-fixed transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-secondary/10"
                 >
                   <span className="material-symbols-outlined text-sm">restaurant_menu</span>
-                  Importar do cardápio
+                  Importar
                 </button>
-                {selectedIdx === idx && menuItems.length > 0 && (
+                {openDropdown === idx && (
                   <div className="absolute right-0 top-full mt-1 z-50 w-72 bg-surface-container-high rounded-xl shadow-2xl border border-outline-variant/10 max-h-64 overflow-y-auto">
-                    {menuItems.map((mi, miIdx) => (
+                    {menuItems.length === 0 ? (
+                      <div className="p-4 text-sm text-on-surface-variant text-center">Nenhum item no cardápio</div>
+                    ) : menuItems.map((mi, miIdx) => (
                       <button
                         key={miIdx}
-                        onClick={() => { pickFromMenu(idx, mi); setSelectedIdx(null); }}
+                        onClick={() => pickFromMenu(idx, mi)}
                         className="w-full text-left px-4 py-2.5 hover:bg-surface-container-low text-sm text-on-surface transition-colors flex items-center gap-3 border-b border-outline-variant/5 last:border-0"
                       >
                         <span className="material-symbols-outlined text-on-surface-variant text-sm">restaurant</span>
-                        <span>{mi.name_pt || mi.name_fr || mi.name_en}</span>
+                        <span className="truncate">{mi.name_pt || mi.name_fr || mi.name_en}</span>
                       </button>
                     ))}
                   </div>
@@ -163,56 +185,84 @@ export default function AdminLandingPage() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-40 h-40 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
-                {item.image_url ? (
-                  <div className="relative w-full h-full">
-                    <Image className="object-cover" src={item.image_url} alt="" fill sizes="160px" />
-                    <button
-                      onClick={() => updateItem(idx, 'image_url', '')}
-                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
-                    >
-                      <span className="material-symbols-outlined text-xs">close</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant gap-1">
-                    <span className="material-symbols-outlined text-2xl">image</span>
-                    <span className="text-[10px] font-label-caps">Sem imagem</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <label className="text-[10px] font-label-caps text-on-surface-variant">Português</label>
-                    <input className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50" value={item.name_pt} onChange={e => updateItem(idx, 'name_pt', e.target.value)} placeholder="Nome" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-label-caps text-on-surface-variant">Français</label>
-                    <input className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50" value={item.name_fr} onChange={e => updateItem(idx, 'name_fr', e.target.value)} placeholder="Nom" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-label-caps text-on-surface-variant">English</label>
-                    <input className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50" value={item.name_en} onChange={e => updateItem(idx, 'name_en', e.target.value)} placeholder="Name" />
-                  </div>
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="w-full md:w-40 h-40 rounded-xl overflow-hidden bg-surface-container-high shrink-0 relative">
+                  {item.image_url ? (
+                    <>
+                      <Image className="object-cover" src={item.image_url} alt="" fill sizes="160px" />
+                      <button
+                        onClick={() => update(idx, 'image_url', '')}
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors z-10"
+                      >
+                        <span className="material-symbols-outlined text-xs">close</span>
+                      </button>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant gap-1">
+                      <span className="material-symbols-outlined text-3xl">image</span>
+                      <span className="text-[10px] font-label-caps">Sem imagem</span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="md:col-span-2">
-                    <label className="text-[10px] font-label-caps text-on-surface-variant">URL da Imagem</label>
-                    <input className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50" value={item.image_url} onChange={e => updateItem(idx, 'image_url', e.target.value)} placeholder="https://..." />
+                <div className="flex-1 space-y-4 min-w-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {([
+                      { key: 'name_pt' as const, label: 'Português', placeholder: 'Nome do prato' },
+                      { key: 'name_fr' as const, label: 'Français', placeholder: 'Nom du plat' },
+                      { key: 'name_en' as const, label: 'English', placeholder: 'Dish name' },
+                    ]).map(field => (
+                      <div key={field.key}>
+                        <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">{field.label}</label>
+                        <input
+                          className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                          value={item[field.key] as string}
+                          onChange={e => update(idx, field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                        />
+                      </div>
+                    ))}
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="md:col-span-3">
-                    <label className="text-[10px] font-label-caps text-on-surface-variant">Descrição (3 idiomas)</label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <textarea className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50" value={item.description_pt} onChange={e => updateItem(idx, 'description_pt', e.target.value)} placeholder="Descrição PT" />
-                      <textarea className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50" value={item.description_fr} onChange={e => updateItem(idx, 'description_fr', e.target.value)} placeholder="Description FR" />
-                      <textarea className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50" value={item.description_en} onChange={e => updateItem(idx, 'description_en', e.target.value)} placeholder="Description EN" />
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">URL da Imagem</label>
+                      <input
+                        className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow font-mono text-xs"
+                        value={item.image_url}
+                        onChange={e => update(idx, 'image_url', e.target.value)}
+                        placeholder="https://images.unsplash.com/photo-..."
+                      />
+                    </div>
+                    <div className="w-24">
+                      <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Preço (CAD)</label>
+                      <input
+                        type="number" step="0.01" min="0"
+                        className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                        value={item.price || ''}
+                        onChange={e => update(idx, 'price', parseFloat(e.target.value) || 0)}
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Descrição (3 idiomas)</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+                      {([
+                        { key: 'description_pt' as const, placeholder: 'Descrição em português' },
+                        { key: 'description_fr' as const, placeholder: 'Description en français' },
+                        { key: 'description_en' as const, placeholder: 'Description in English' },
+                      ]).map(field => (
+                        <textarea
+                          key={field.key}
+                          className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                          value={item[field.key] as string}
+                          onChange={e => update(idx, field.key, e.target.value)}
+                          placeholder={field.placeholder}
+                        />
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -221,9 +271,8 @@ export default function AdminLandingPage() {
           </div>
         ))}
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
           <button
-            ref={btnRef}
             onClick={handleSave}
             disabled={saving}
             className="px-8 py-3 bg-secondary text-on-secondary rounded-xl font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-transform active:scale-95 flex items-center gap-2 disabled:opacity-50"

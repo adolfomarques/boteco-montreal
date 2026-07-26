@@ -51,7 +51,7 @@ export default function MenuPreviewSection() {
           if (landData?.items?.length > 0) {
             const mapped = landData.items.map((item: any) => ({
               name: item.name_fr || item.name_en || item.name_pt || '',
-              price: '',
+              price: item.price ? `$${item.price}` : '',
               description: item.description_fr || item.description_en || item.description_pt || '',
               image: item.image_url || FALLBACK_DISHES[0].image,
             }));

@@ -11,6 +11,7 @@ export interface LandingItem {
   description_fr: string;
   description_en: string;
   image_url: string;
+  price: number;
 }
 
 export interface LandingSettings {
@@ -25,21 +26,21 @@ function isSupabaseConfigured(): boolean {
 const FALLBACK: LandingSettings = {
   items: [
     {
-      name_pt: 'Pão de Queijo', name_fr: 'Pão de Queijo', name_en: 'Cheese Bread',
+      name_pt: 'Pão de Queijo', name_fr: 'Pão de Queijo', name_en: 'Cheese Bread', price: 12,
       description_pt: 'Pãezinhos de queijo crocantes por fora e macios por dentro. Feitos com amor.',
       description_fr: 'Petits pains au fromage croustillants à l\'extérieur et moelleux à l\'intérieur. Fait maison avec amour.',
       description_en: 'Crispy on the outside, soft on the inside cheese bread. Made with love.',
       image_url: 'https://images.unsplash.com/photo-1773399159824-5a63848662d2?w=800&q=80&fit=crop&auto=format',
     },
     {
-      name_pt: 'Calabresa Acebolada', name_fr: 'Calabresa Acebolada', name_en: 'Grilled Calabrese Sausage',
+      name_pt: 'Calabresa Acebolada', name_fr: 'Calabresa Acebolada', name_en: 'Grilled Calabrese Sausage', price: 17,
       description_pt: 'Linguiça calabresa grelhada com cebolas caramelizadas. O clássico indispensável de todo boteco.',
       description_fr: 'Saucisse calabraise grillée avec oignons caramélisés. Le classique indispensable de tout vrai boteco.',
       description_en: 'Grilled Calabrese sausage with caramelized onions. The essential classic of any real boteco.',
       image_url: 'https://images.unsplash.com/photo-1695089028198-80245e2f5d06?w=800&q=80&fit=crop&auto=format',
     },
     {
-      name_pt: 'Coxinha', name_fr: 'Coxinha', name_en: 'Coxinha',
+      name_pt: 'Coxinha', name_fr: 'Coxinha', name_en: 'Coxinha', price: 13,
       description_pt: 'Croquete de frango desfiado com queijo cremoso, envolto em uma crosta perfeitamente dourada.',
       description_fr: 'Croquette de poulet effiloché avec fromage crémeux, enveloppée dans une croûte parfaitement dorée.',
       description_en: 'Shredded chicken croquette with creamy cheese, wrapped in a perfectly golden crust.',
@@ -59,7 +60,6 @@ export async function GET() {
       const settings = data.value as unknown as LandingSettings;
       if (settings?.items?.length > 0) return NextResponse.json(settings);
     }
-    // Fallback: build from featured items
     const { data: items, error: itemsErr } = await supabase
       .from('menu_items')
       .select('*, menu_categories!inner(slug)')
@@ -74,6 +74,7 @@ export async function GET() {
           name_pt: i.name_pt || '', name_fr: i.name_fr || '', name_en: i.name_en || '',
           description_pt: i.description_pt || '', description_fr: i.description_fr || '', description_en: i.description_en || '',
           image_url: i.image_url || '',
+          price: (i.price as number) ?? 0,
         })),
       });
     }
