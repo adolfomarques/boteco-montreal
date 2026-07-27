@@ -52,7 +52,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-20 container-max w-full mt-4 md:mt-0">
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-stack-md md:gap-gutter">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start flex-wrap gap-stack-md md:gap-gutter">
           <div className="max-w-3xl flex-1">
             <span className="inline-block bg-secondary/20 text-secondary border border-secondary/30 px-3 py-1 rounded-full font-label-caps mb-stack-md backdrop-blur-sm">
               {t('hero.badge')}
@@ -70,27 +70,11 @@ export default function HeroSection() {
               {t('hero.titlePost')} <br />
               <span className="text-secondary italic">{t('hero.titleHighlight')}</span>
             </h1>
-            <p className="font-body-lg text-on-surface-variant mb-stack-md max-w-xl">
+            <p className="font-body-lg text-on-surface-variant max-w-xl">
               {t('hero.subtitle')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-stack-md">
-              <Link
-                href="/menu"
-                className="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-headline-sm text-[18px] font-bold hover:brightness-110 transition-all duration-200 active:scale-95 shadow-lg shadow-secondary/20"
-              >
-                {t('hero.ctaMenu')}
-                <span className="material-symbols-outlined">restaurant_menu</span>
-              </Link>
-              <Link
-                href="/eventos"
-                className="inline-flex items-center justify-center gap-2 border border-outline text-on-surface px-8 py-4 rounded-xl font-headline-sm text-[18px] font-bold hover:bg-white/5 transition-all duration-200 active:scale-95"
-              >
-                {t('hero.ctaEvents')}
-                <span className="material-symbols-outlined">event</span>
-              </Link>
-            </div>
           </div>
-          <div className="flex-shrink-0 mt-8 lg:mt-0 relative">
+          <div className="flex-shrink-0 lg:mt-0 relative">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-56 h-56 lg:w-[400px] lg:h-[400px] rounded-full bg-gradient-to-b from-secondary/30 via-tertiary/20 to-primary/10 blur-3xl" />
               <div className="absolute w-44 h-44 lg:w-[300px] lg:h-[300px] rounded-full bg-gradient-to-tr from-cyan-400/20 via-purple-500/20 to-transparent blur-2xl translate-y-4" />
@@ -103,6 +87,22 @@ export default function HeroSection() {
                 className="w-full h-full object-contain"
               />
             </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-stack-md lg:basis-full">
+            <Link
+              href="/menu"
+              className="inline-flex items-center justify-center gap-2 bg-secondary text-on-secondary px-8 py-4 rounded-xl font-headline-sm text-[18px] font-bold hover:brightness-110 transition-all duration-200 active:scale-95 shadow-lg shadow-secondary/20"
+            >
+              {t('hero.ctaMenu')}
+              <span className="material-symbols-outlined">restaurant_menu</span>
+            </Link>
+            <Link
+              href="/eventos"
+              className="inline-flex items-center justify-center gap-2 border border-outline text-on-surface px-8 py-4 rounded-xl font-headline-sm text-[18px] font-bold hover:bg-white/5 transition-all duration-200 active:scale-95"
+            >
+              {t('hero.ctaEvents')}
+              <span className="material-symbols-outlined">event</span>
+            </Link>
           </div>
         </div>
       </div>
