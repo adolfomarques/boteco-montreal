@@ -3,12 +3,17 @@
 import React from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import { useSidebar } from './AdminSidebar';
 
 export default function AdminTopBar({ title }: { title: string }) {
   const { t } = useLanguage();
+  const { toggle } = useSidebar();
   return (
-    <header className="flex justify-between items-center h-16 px-gutter sticky top-0 z-40 bg-surface-container border-b border-outline-variant">
-      <div className="flex items-center gap-4">
+    <header className="flex justify-between items-center h-16 px-gutter sticky top-0 z-30 bg-surface-container border-b border-outline-variant">
+      <div className="flex items-center gap-3">
+        <button onClick={toggle} className="md:hidden material-symbols-outlined text-on-surface-variant hover:text-on-surface p-1" aria-label="Toggle menu">
+          menu
+        </button>
         <h2 className="font-headline-sm text-on-surface">{title}</h2>
       </div>
       <div className="flex items-center gap-6">

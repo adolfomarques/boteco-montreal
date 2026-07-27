@@ -118,9 +118,12 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    const snap = getSnapshot();
-    setPrev(snap);
-    loadAll();
+    const id = setTimeout(() => {
+      const snap = getSnapshot();
+      setPrev(snap);
+      loadAll();
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   const totals = computeDashboardTotals(items, events, reservations);

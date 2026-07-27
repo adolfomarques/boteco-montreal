@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminSidebar, { SidebarProvider } from '@/components/admin/AdminSidebar';
 import AuthGuard from '@/components/admin/AuthGuard';
 import { LanguageProvider, useLanguage } from '@/lib/i18n/LanguageProvider';
 
@@ -22,13 +22,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <LanguageProvider>
       <AuthGuard>
+      <SidebarProvider>
       <div className="flex min-h-screen">
         <AdminSidebar />
-        <main className="ml-56 flex-1 flex flex-col bg-background min-h-screen">
+        <main className="ml-0 md:ml-56 flex-1 flex flex-col bg-background min-h-screen">
           {children}
           <AdminFooter />
         </main>
       </div>
+      </SidebarProvider>
       </AuthGuard>
     </LanguageProvider>
   );

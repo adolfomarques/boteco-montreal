@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { isSupabaseConfigured } from '@/components/admin/AuthProvider';
@@ -57,12 +57,15 @@ export default function AdminGalleryPage() {
   const [newUrl, setNewUrl] = useState('');
   const [newType, setNewType] = useState<'image' | 'video'>('image');
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
-  const dragIdRef = useRef<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = loadLocal();
-    setItems(stored.length > 0 ? stored : INITIAL_ITEMS);
-    setLoading(false);
+    const id = setTimeout(() => {
+      const stored = loadLocal();
+      setItems(stored.length > 0 ? stored : INITIAL_ITEMS);
+      setLoading(false);
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   function handleAdd() {
@@ -94,7 +97,7 @@ export default function AdminGalleryPage() {
 
   // Native HTML5 DnD
   function handleDragStart(ev: React.DragEvent, id: string) {
-    dragIdRef.current = id;
+    setDragId(id);
     ev.dataTransfer.effectAllowed = 'move';
   }
 
@@ -107,7 +110,7 @@ export default function AdminGalleryPage() {
   function handleDrop(ev: React.DragEvent, targetId: string) {
     ev.preventDefault();
     setDragOverIdx(null);
-    const sourceId = dragIdRef.current;
+    const sourceId = dragId;
     if (!sourceId || sourceId === targetId) return;
     const fromIdx = items.findIndex((i) => i.id === sourceId);
     const toIdx = items.findIndex((i) => i.id === targetId);
@@ -118,7 +121,7 @@ export default function AdminGalleryPage() {
     const withOrder = reordered.map((i, idx) => ({ ...i, sort_order: idx + 1 }));
     setItems(withOrder);
     saveLocal(withOrder);
-    dragIdRef.current = null;
+    setDragId(null);
   }
 
   if (loading) {
@@ -199,8 +202,8 @@ export default function AdminGalleryPage() {
                   onDragStart={(e) => handleDragStart(e, item.id)}
                   onDragOver={(e) => handleDragOver(e, idx)}
                   onDrop={(e) => handleDrop(e, item.id)}
-                  onDragEnd={() => { dragIdRef.current = null; setDragOverIdx(null); }}
-                  className={`flex items-center gap-3 p-3 cursor-grab active:cursor-grabbing ${dragIdRef.current === item.id ? 'opacity-40' : ''}`}
+                  onDragEnd={() => { setDragId(null); setDragOverIdx(null); }}
+                  className={`flex items-center gap-3 p-3 cursor-grab active:cursor-grabbing ${dragId === item.id ? 'opacity-40' : ''}`}
                 >
                   {/* Thumbnail */}
                   <div className="w-20 h-16 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0 relative">

@@ -22,6 +22,7 @@ export type LocalEvent = {
   image_url: string | null;
   sort_order: number;
   active: boolean;
+  highlight: boolean;
 };
 
 function isSupabaseConfigured(): boolean {
@@ -42,7 +43,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { events?: any[] };
+  const body = (await req.json()) as { events?: LocalEvent[] };
   if (!body.events) return NextResponse.json({ ok: true });
 
   if (isSupabaseConfigured()) {
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       time_range: e.time_range, icon: e.icon, color: e.color,
       image_url: e.image_url || null,
       sort_order: e.sort_order ?? 0, active: e.active ?? true,
+      highlight: e.highlight ?? false,
     })));
     if (error) console.error('events insert error:', error);
   }

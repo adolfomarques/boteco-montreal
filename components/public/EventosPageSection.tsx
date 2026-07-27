@@ -50,13 +50,17 @@ export default function EventsSection({
 }) {
   const { t, locale } = useLanguage();
   const searchParams = useSearchParams();
-  const [view, setView] = useState<'list' | 'calendar'>('list');
+  const [view, setView] = useState<'list' | 'calendar'>(() =>
+    searchParams?.get('view') === 'calendar' ? 'calendar' : 'list'
+  );
+  const [prevSearchParams, setPrevSearchParams] = useState(searchParams);
 
-  useEffect(() => {
+  if (searchParams !== prevSearchParams) {
+    setPrevSearchParams(searchParams);
     if (searchParams?.get('view') === 'calendar') {
       setView('calendar');
     }
-  }, [searchParams]);
+  }
 
   useEffect(() => {
     if (view === 'calendar' && window.location.hash === '#eventos-calendario') {

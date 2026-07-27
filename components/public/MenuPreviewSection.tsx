@@ -38,6 +38,18 @@ function getPrice(price: number | undefined): string {
   return `$${price}`;
 }
 
+interface LandingItemPayload {
+  name_fr?: string;
+  name_en?: string;
+  name_pt?: string;
+  description_fr?: string;
+  description_en?: string;
+  description_pt?: string;
+  price?: number | string;
+  image_url?: string | null;
+  image?: string | null;
+}
+
 export default function MenuPreviewSection() {
   const { t } = useLanguage();
   const [dishes, setDishes] = useState<Dish[]>(FALLBACK_DISHES);
@@ -47,9 +59,9 @@ export default function MenuPreviewSection() {
       try {
         const landRes = await fetch('/api/local/landing');
         if (landRes.ok) {
-          const landData = await landRes.json();
-          if (landData?.items?.length > 0) {
-            const mapped = landData.items.map((item: any) => ({
+          const landData = (await landRes.json()) as { items?: LandingItemPayload[] };
+          if ((landData.items?.length ?? 0) > 0) {
+            const mapped = (landData.items ?? []).map((item) => ({
               name: item.name_fr || item.name_en || item.name_pt || '',
               price: item.price ? `$${item.price}` : '',
               description: item.description_fr || item.description_en || item.description_pt || '',
@@ -63,12 +75,12 @@ export default function MenuPreviewSection() {
       try {
         const res = await fetch('/api/local/menu');
         if (!res.ok) return;
-        const data = await res.json();
-        if (data?.entrees?.featured?.length > 0) {
-          const featured = data.entrees.featured.slice(0, 3);
-          const mapped = featured.map((item: any) => ({
+        const data = (await res.json()) as { entrees?: { featured?: LandingItemPayload[] } };
+        if ((data.entrees?.featured?.length ?? 0) > 0) {
+          const featured = (data.entrees?.featured ?? []).slice(0, 3);
+          const mapped = featured.map((item) => ({
             name: item.name_fr || item.name_en || item.name_pt || '',
-            price: getPrice(item.price),
+            price: getPrice(typeof item.price === 'number' ? item.price : undefined),
             description: item.description_fr || item.description_en || item.description_pt || '',
             image: item.image_url || item.image || FALLBACK_DISHES[0].image,
           }));
@@ -80,7 +92,7 @@ export default function MenuPreviewSection() {
   }, []);
 
   return (
-    <section className="py-section-gap bg-surface-container-lowest border-y border-outline-variant/10" id="menu">
+    <section className="bg-surface-container-lowest border-y border-outline-variant/10 pb-section-gap" id="menu">
       <div className="container-max">
         <div className="text-center mb-16">
           <h2 className="font-display-mobile md:font-headline-md">{t('menuPreview.sectionTitle')}</h2>
@@ -92,7 +104,7 @@ export default function MenuPreviewSection() {
           {dishes.map((dish) => (
             <div
               key={dish.name}
-              className="glass-card rounded-2xl overflow-hidden group border border-outline-variant/10 hover:border-secondary/40 transition-all duration-500"
+              className="glass-card rounded-2xl overflow-hidden group border border-outline-variant/10 hover:border-secondary/40 transition-all duration-500 flex flex-col"
             >
               <div className="h-72 overflow-hidden relative">
                 <Image
@@ -104,13 +116,13 @@ export default function MenuPreviewSection() {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               </div>
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-1">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-headline-sm text-on-surface">{dish.name}</h3>
                   <span className="text-secondary font-bold">{dish.price}</span>
                 </div>
-                <p className="text-on-surface-variant text-body-md mb-6">{dish.description}</p>
-                <Link href="/menu" className="block w-full py-3 border border-outline-variant font-label-caps font-bold rounded-xl text-center hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all">
+                <p className="text-on-surface-variant text-body-md flex-1">{dish.description}</p>
+                <Link href="/menu" className="mt-4 block w-full py-3 border border-outline-variant font-label-caps font-bold rounded-xl text-center hover:bg-secondary hover:text-on-secondary hover:border-secondary transition-all">
                   {t('menuPreview.details')}
                 </Link>
               </div>

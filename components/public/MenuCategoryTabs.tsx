@@ -23,7 +23,7 @@ export default function MenuCategoryTabs({ categories }: { categories: Category[
   };
 
   return (
-    <section className="sticky top-20 z-40 bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/10">
+    <section className="sticky top-16 md:top-20 z-40 bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/10">
       <div className="container-max overflow-x-auto">
         <div className="flex items-center h-16 gap-gutter whitespace-nowrap">
           {categories.map((cat) => {
@@ -33,7 +33,7 @@ export default function MenuCategoryTabs({ categories }: { categories: Category[
                 key={cat.id}
                 href={`#${cat.id}`}
                 onClick={() => handleClick(cat.id)}
-                className={`font-label-caps h-full flex items-center transition-colors ${
+                className={`font-label-caps transition-colors py-3 ${
                   isActive
                     ? 'text-secondary font-bold border-b-2 border-secondary'
                     : 'text-on-surface-variant hover:text-secondary font-medium'

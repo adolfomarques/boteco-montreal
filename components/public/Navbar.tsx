@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from '../ui/Button';
@@ -20,7 +20,14 @@ const NAV_ICONS: Record<string, string> = {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hash, setHash] = useState('');
+  const hash = useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener('hashchange', onChange);
+      return () => window.removeEventListener('hashchange', onChange);
+    },
+    () => window.location.hash,
+    () => ''
+  );
   const pathname = usePathname();
   const { t, locale, setLocale } = useLanguage();
 
@@ -28,13 +35,9 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    const handleHashChange = () => setHash(window.location.hash);
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('hashchange', handleHashChange);
-    setHash(window.location.hash);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
 
@@ -99,14 +102,14 @@ export default function Navbar() {
       </div>
       <div className="flex justify-between items-center container-max h-16 md:h-20">
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
+          <div className="relative h-12 w-12 md:h-10 md:w-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
             <img
               alt="Boteco Montreal"
               src="/boteco-logo2-clean.webp"
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="font-headline-md text-[20px] tracking-tighter text-on-surface uppercase">
+          <span className="font-headline-md text-[22px] md:text-[20px] tracking-tighter text-on-surface uppercase">
             Boteco
           </span>
         </Link>
@@ -117,7 +120,7 @@ export default function Navbar() {
               ? pathname === '/' && hash === '#' + link.href.split('#')[1]
               : pathname === link.href;
             const handleClick = link.href.includes('#')
-              ? () => setTimeout(() => setHash(window.location.hash), 50)
+              ? () => setTimeout(() => window.dispatchEvent(new HashChangeEvent('hashchange')), 50)
               : undefined;
             return (
               <Link
@@ -179,27 +182,27 @@ export default function Navbar() {
         >
           <div className="flex items-center justify-between px-6 pt-5 pb-2">
             <Link href="/" className="flex items-center gap-2.5" onClick={() => setMobileMenuOpen(false)}>
-              <div className="relative h-8 w-8 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
+              <div className="relative h-10 w-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-secondary/20 to-tertiary/20">
                 <img
                   alt="Boteco Montreal"
                   src="/boteco-logo2-clean.webp"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-headline-sm text-[16px] tracking-tighter text-on-surface uppercase">
+              <span className="font-headline-sm text-[18px] tracking-tighter text-on-surface uppercase">
                 Boteco
               </span>
             </Link>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
+              className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
               aria-label={t('nav.closeLabel')}
             >
-              <span className="material-symbols-outlined text-[18px]">close</span>
+              <span className="material-symbols-outlined text-[22px]">close</span>
             </button>
           </div>
           <div className="pb-6 px-6 flex flex-col h-full" style={{ height: 'calc(100% - 60px)' }}>
-            <div className="flex-1 space-y-1 pt-4">
+            <div className="flex-1 space-y-1 pt-6">
               {navLinks.map((link) => {
                 const isActive = link.href.includes('#')
                   ? pathname === '/' && hash === '#' + link.href.split('#')[1]
@@ -210,15 +213,15 @@ export default function Navbar() {
                     href={link.href}
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      if (link.href.includes('#')) setTimeout(() => setHash(window.location.hash), 50);
+                      if (link.href.includes('#')) setTimeout(() => window.dispatchEvent(new HashChangeEvent('hashchange')), 50);
                     }}
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-label-caps text-sm transition-all duration-200 ${
+                    className={`flex items-center gap-4 px-5 py-4 rounded-xl font-label-caps text-base font-medium transition-all duration-200 ${
                       isActive
                         ? 'bg-secondary/15 text-secondary font-bold'
                         : 'text-on-surface hover:bg-surface-container-low hover:text-secondary'
                     }`}
                   >
-                    <span className={`material-symbols-outlined text-[20px] ${isActive ? 'text-secondary' : 'text-on-surface-variant'}`}>
+                    <span className={`material-symbols-outlined text-[24px] ${isActive ? 'text-secondary' : 'text-on-surface-variant'}`}>
                       {NAV_ICONS[link.href] || 'link'}
                     </span>
                     {link.name}
@@ -232,17 +235,17 @@ export default function Navbar() {
                 href="/reservas"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <Button variant="secondary" className="w-full rounded-xl font-label-caps text-sm py-4">
+                <Button variant="secondary" className="w-full rounded-xl font-label-caps text-base py-5">
                   {t('nav.reservar')}
                 </Button>
               </Link>
 
-              <div className="mt-4 flex items-center justify-center gap-3">
+              <div className="mt-5 flex items-center justify-center gap-4">
                 {(['fr', 'pt', 'en'] as const).map((l) => (
                   <button
                     key={l}
                     onClick={() => setLocale(l)}
-                    className={`w-10 h-10 rounded-full font-label-caps text-sm font-bold transition-all duration-200 ${
+                    className={`w-12 h-12 rounded-full font-label-caps text-base font-bold transition-all duration-200 ${
                       locale === l
                         ? 'bg-secondary text-on-secondary shadow-md shadow-secondary/30 scale-110'
                         : 'bg-surface-variant text-on-surface-variant hover:bg-surface-container-low'

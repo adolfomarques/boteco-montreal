@@ -20,9 +20,10 @@ interface WeeklyEvent {
   icon: string;
   color: string;
   image: string;
+  highlight: boolean;
 }
 
-function mapEvent(ev: Record<string, any>, locale: Locale): WeeklyEvent {
+function mapEvent(ev: Record<string, unknown>, locale: Locale): WeeklyEvent {
   let title = ev.title_en;
   let description = ev.description_en;
   let day = ev.day_label;
@@ -49,6 +50,7 @@ function mapEvent(ev: Record<string, any>, locale: Locale): WeeklyEvent {
     icon: ev.icon as string,
     color: ev.color as string,
     image: (ev.image_url || ev.image) as string ?? '',
+    highlight: (ev.highlight as boolean) ?? false,
   };
 }
 
@@ -58,10 +60,10 @@ async function fetchEvents(locale: Locale): Promise<WeeklyEvent[]> {
       const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
       const res = await fetch(`${base}/api/local/events`, { next: { revalidate: 0 } });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as Record<string, unknown>[];
         if (Array.isArray(data) && data.length > 0) {
-          const activeEvents = data.filter((ev: any) => ev.active !== false);
-          if (activeEvents.length > 0) return activeEvents.map((ev: any) => mapEvent(ev, locale));
+          const activeEvents = data.filter((ev) => ev.active !== false);
+          if (activeEvents.length > 0) return activeEvents.map((ev) => mapEvent(ev, locale));
         }
       }
     } catch {}
@@ -83,9 +85,11 @@ export default async function EventosPage() {
   const t = getTranslator(locale);
   const WEEKLY_EVENTS = await fetchEvents(locale);
 
+  const highlighted = WEEKLY_EVENTS.find((ev) => ev.highlight);
+
   return (
     <>
-      <section className="relative min-h-[70vh] flex items-center overflow-hidden copacabana-pattern pt-20">
+      <section className="relative min-h-[70vh] flex flex-col justify-start overflow-hidden copacabana-pattern pt-4 md:pt-6">
         <div className="absolute inset-0 opacity-20 organic-overlay pointer-events-none">
           <svg className="text-secondary opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none" width="100%" height="100%">
             <path d="M0 50 Q 25 30 50 50 T 100 50" fill="none" stroke="currentColor" strokeWidth="0.5" />
@@ -97,19 +101,29 @@ export default async function EventosPage() {
           <div className="space-y-stack-md">
             <div className="inline-flex items-center gap-2 bg-tertiary-container text-tertiary px-4 py-1.5 rounded-full font-label-caps border border-tertiary/20">
               <span className="material-symbols-outlined text-[14px]">calendar_today</span>
-              {t('eventosPage.heroDate')}
+              {highlighted
+                ? `${highlighted.day} | ${highlighted.time}`
+                : t('eventosPage.heroDate')}
             </div>
             <h1 className="font-display-mobile lg:font-display-lg leading-none uppercase text-white">
-              {t('eventosPage.heroTitle1')} <span className="text-secondary">{t('eventosPage.heroTitle2')}</span>
+              {highlighted ? (
+                highlighted.title
+              ) : (
+                <>{t('eventosPage.heroTitle1')} <span className="text-secondary">{t('eventosPage.heroTitle2')}</span></>
+              )}
               <br />
-              <span className="italic font-normal lowercase font-headline-md text-secondary/80">{t('eventosPage.heroSubtitle2')}</span>
+              <span className="italic font-normal lowercase font-headline-md text-secondary/80">
+                {highlighted ? t('eventosPage.heroSubtitle2') : t('eventosPage.heroSubtitle2')}
+              </span>
             </h1>
             <p className="font-body-lg text-on-surface-variant max-w-md">
-              {t('eventosPage.heroDescription')}
+              {highlighted ? highlighted.description : t('eventosPage.heroDescription')}
             </p>
-            <p className="italic text-secondary font-headline-sm text-[20px] lg:text-headline-sm">
-              {t('eventosPage.heroTagline')}
-            </p>
+            {!highlighted && (
+              <p className="italic text-secondary font-headline-sm text-[20px] lg:text-headline-sm">
+                {t('eventosPage.heroTagline')}
+              </p>
+            )}
             <div className="flex flex-wrap gap-stack-md pt-stack-sm">
               <Link
                 href="/reservas"
@@ -130,8 +144,8 @@ export default async function EventosPage() {
             <div className="relative w-full max-w-[480px] aspect-[3/4] bg-surface-container-high rounded-2xl overflow-hidden shadow-2xl border border-white/5">
               <Image
                 className="object-cover"
-                src="/carrosel/IMG_8301.jpg"
-                alt={t('eventosPage.heroImageAlt')}
+                src={highlighted ? highlighted.image : '/carrosel/IMG_8301.jpg'}
+                alt={highlighted ? highlighted.title : t('eventosPage.heroImageAlt')}
                 fill
                 sizes="(max-width: 480px) 100vw, 480px"
               />

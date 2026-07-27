@@ -29,13 +29,12 @@ const FALLBACK_ITEMS: GalleryItem[] = [
   { type: 'image', src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0LWBmAzLZdbEohlVvD8-jVqlEIL70jQjkOjov0FhZeEBAfl2DlfzL5okQ7_qZMOVxM7cj3gFgGczWvJo5QX-elqnNGRuM7fjiGpXbibbyZYslkSYWvdzHou7hquhcpRcucYLR0X4rjjHM7tVgXwFnvJ3KrhDipK5FGSDkSnS_IZr2-zHkx6kZ4dszO4iQsspVqc7hHauii6EK6H4VeUYnZHMhRZhI6VEufrBAa-Bg09EQIHoF0uZ3FDJ2UC5rkZUP2SWqLZhkloI' },
 ];
 
-const CARD_W = 420;
-const CARD_H = 480;
-const PEEK = 60;
+const DESKTOP = { CARD_W: 420, CARD_H: 480, PEEK: 60 };
+const MOBILE = { CARD_W: 260, CARD_H: 300, PEEK: 40 };
 const GAP = 5;
-const STEP = PEEK + GAP;
 
 export default function SocialGallery({ widgetId }: SocialGalleryProps) {
+  const [dims, setDims] = useState(DESKTOP);
   const { t } = useLanguage();
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(FALLBACK_ITEMS);
   const [active, setActive] = useState(0);
@@ -43,6 +42,14 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
   const dragStartX = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const total = galleryItems.length;
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const id = setTimeout(() => setDims(mq.matches ? MOBILE : DESKTOP), 0);
+    const handler = (e: MediaQueryListEvent) => setDims(e.matches ? MOBILE : DESKTOP);
+    mq.addEventListener('change', handler);
+    return () => { clearTimeout(id); mq.removeEventListener('change', handler); };
+  }, []);
 
   useEffect(() => {
     fetch('/api/local/gallery')
@@ -61,8 +68,8 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
   useEffect(() => {
     if (!widgetId) return;
     if (document.querySelector('script[src*="lightwidget"]')) {
-      setScriptLoaded(true);
-      return;
+      const id = setTimeout(() => setScriptLoaded(true), 0);
+      return () => clearTimeout(id);
     }
     const script = document.createElement('script');
     script.src = 'https://cdn.lightwidget.com/widgets/lightwidget.js';
@@ -85,7 +92,7 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [active, total]);
+  }, [active, total, galleryItems]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     dragStartX.current = e.clientX;
@@ -104,7 +111,7 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
 
   return (
     <section
-      className="py-section-gap overflow-hidden bg-background select-none"
+      className="overflow-hidden bg-background select-none pb-section-gap"
       role="region"
       aria-label={t('gallery.regionLabel')}
       tabIndex={widgetId ? -1 : 0}
@@ -151,7 +158,7 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
           </div>
         </div>
       ) : (
-        <div className="relative w-full" style={{ height: CARD_H }}>
+        <div className="relative w-full" style={{ height: dims.CARD_H }}>
           {galleryItems.map((item, i) => {
             const diff = ((i - active + total) % total + total) % total;
 
@@ -166,11 +173,11 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
               const dist = side === 1 ? diff : total - diff;
 
               if (side === 1) {
-                x = CARD_W + GAP + (dist - 1) * STEP;
-                clip = `inset(0px ${CARD_W - PEEK}px 0px 0px)`;
+                x = dims.CARD_W + GAP + (dist - 1) * (dims.PEEK + GAP);
+                clip = `inset(0px ${dims.CARD_W - dims.PEEK}px 0px 0px)`;
               } else {
-                x = -(CARD_W + GAP + (dist - 1) * STEP);
-                clip = `inset(0px 0px 0px ${CARD_W - PEEK}px)`;
+                x = -(dims.CARD_W + GAP + (dist - 1) * (dims.PEEK + GAP));
+                clip = `inset(0px 0px 0px ${dims.CARD_W - dims.PEEK}px)`;
               }
             }
 
@@ -181,8 +188,8 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
                 className="absolute top-0 rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out"
                 style={{
                   left: '50%',
-                  width: CARD_W,
-                  height: CARD_H,
+                  width: dims.CARD_W,
+                  height: dims.CARD_H,
                   transform: `translate(calc(-50% + ${x}px), 0px)`,
                   clipPath: clip,
                   zIndex: diff === 0 ? 50 : 10,

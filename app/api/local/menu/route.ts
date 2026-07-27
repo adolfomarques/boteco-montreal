@@ -24,8 +24,8 @@ function isSupabaseConfigured(): boolean {
   return url.startsWith('https://') && !url.includes('your-project');
 }
 
-function deepMerge(target: any, source: any): any {
-  const result = { ...target };
+function deepMerge(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...target };
   for (const key of Object.keys(source)) {
     const sv = source[key];
     const tv = result[key];
@@ -35,7 +35,7 @@ function deepMerge(target: any, source: any): any {
       tv !== null && tv !== undefined && !Array.isArray(tv) &&
       typeof tv === 'object'
     ) {
-      result[key] = deepMerge(tv, sv);
+      result[key] = deepMerge(tv as Record<string, unknown>, sv as Record<string, unknown>);
     } else {
       result[key] = sv;
     }
@@ -117,7 +117,7 @@ function mapToLocal(item: Record<string, unknown>): Record<string, unknown> {
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as Partial<StoredMenu>;
   const current = readStore<StoredMenu>(STORAGE_KEY, FALLBACK);
-  const merged = deepMerge(current, body);
+  const merged = deepMerge({ ...current }, { ...body });
   writeStore(STORAGE_KEY, merged);
   return NextResponse.json({ ok: true });
 }

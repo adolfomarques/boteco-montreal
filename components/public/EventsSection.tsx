@@ -30,7 +30,7 @@ interface MappedEvent {
   image: string;
 }
 
-function mapEvent(ev: Record<string, any>, locale: Locale): MappedEvent {
+function mapEvent(ev: Record<string, unknown>, locale: Locale): MappedEvent {
   let title = ev.title_en;
   let description = ev.description_en;
   let day = ev.day_label;
@@ -66,10 +66,10 @@ async function fetchEvents(locale: Locale): Promise<MappedEvent[]> {
       const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
       const res = await fetch(`${base}/api/local/events`, { next: { revalidate: 0 } });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as Record<string, unknown>[];
         if (Array.isArray(data) && data.length > 0) {
-          const active = data.filter((ev: any) => ev.active !== false);
-          if (active.length > 0) return active.map((ev: any) => mapEvent(ev, locale));
+          const active = data.filter((ev) => ev.active !== false);
+          if (active.length > 0) return active.map((ev) => mapEvent(ev, locale));
         }
       }
     } catch {}

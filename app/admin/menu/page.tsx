@@ -54,7 +54,7 @@ function buildInitialItems(cats: Category[]): MenuItemRow[] {
     items.push({
       id: `seed_${order}`, name_pt: e.name_pt || '', name_fr: e.name_fr || '', name_en: e.name_en || '',
       description_pt: e.description_pt || '', description_fr: e.description_fr || '', description_en: e.description_en || '',
-      price: e.price, image_url: (e as any).image || null,
+      price: e.price, image_url: (e as { image?: string | null }).image || null,
       category_id: cat.id, category_name: getCatName(cat),
       featured: true, active: true, sort_order: order++,
     });
@@ -65,7 +65,7 @@ function buildInitialItems(cats: Category[]): MenuItemRow[] {
     items.push({
       id: `seed_${order}`, name_pt: e.name_pt || '', name_fr: e.name_fr || '', name_en: e.name_en || '',
       description_pt: e.description_pt || '', description_fr: e.description_fr || '', description_en: e.description_en || '',
-      price: e.price, image_url: (e as any).image || null,
+      price: e.price, image_url: (e as { image?: string | null }).image || null,
       category_id: cat.id, category_name: getCatName(cat),
       featured: false, active: true, sort_order: order++,
     });
@@ -76,7 +76,7 @@ function buildInitialItems(cats: Category[]): MenuItemRow[] {
   items.push({
     id: `seed_${order}`, name_pt: platFeatured.name_pt || '', name_fr: platFeatured.name_fr || '', name_en: platFeatured.name_en || '',
     description_pt: platFeatured.description_pt || '', description_fr: platFeatured.description_fr || '', description_en: platFeatured.description_en || '',
-    price: platFeatured.price, image_url: (platFeatured as any).image || null,
+    price: platFeatured.price, image_url: (platFeatured as { image?: string | null }).image || null,
     category_id: cat2.id, category_name: getCatName(cat2),
     featured: true, active: true, sort_order: order++,
   });
@@ -85,7 +85,7 @@ function buildInitialItems(cats: Category[]): MenuItemRow[] {
     items.push({
       id: `seed_${order}`, name_pt: p.name_pt || '', name_fr: p.name_fr || '', name_en: p.name_en || '',
       description_pt: p.description_pt || '', description_fr: p.description_fr || '', description_en: p.description_en || '',
-      price: p.price, image_url: (p as any).image || null,
+      price: p.price, image_url: (p as { image?: string | null }).image || null,
       category_id: cat2.id, category_name: getCatName(cat2),
       featured: false, active: true, sort_order: order++,
     });
@@ -97,9 +97,9 @@ function buildInitialItems(cats: Category[]): MenuItemRow[] {
     items.push({
       id: `seed_${order}`, name_pt: d.name_pt || '', name_fr: d.name_fr || '', name_en: d.name_en || '',
       description_pt: d.description_pt || '', description_fr: d.description_fr || '', description_en: d.description_en || '',
-      price: d.price, image_url: (d as any).image || null,
+      price: d.price, image_url: (d as { image?: string | null }).image || null,
       category_id: cat.id, category_name: getCatName(cat),
-      featured: !!(d as any).featured, active: true, sort_order: order++,
+      featured: !!(d as { featured?: boolean }).featured, active: true, sort_order: order++,
     });
   }
 
@@ -176,9 +176,9 @@ const EMPTY_FORM: Omit<MenuItemRow, 'id'> = {
   featured: false, active: true, sort_order: 0,
 };
 
-function findExistingImage(arr: any[], namePt: string): string | null {
-  const match = arr.find((x: any) => x.name_pt === namePt || x.name_en === namePt || x.name_fr === namePt);
-  if (match) return match.image_url || match.image || null;
+function findExistingImage(arr: Record<string, unknown>[], namePt: string): string | null {
+  const match = arr.find((x) => x.name_pt === namePt || x.name_en === namePt || x.name_fr === namePt);
+  if (match) return (match.image_url as string | null) || (match.image as string | null) || null;
   return null;
 }
 
@@ -290,12 +290,13 @@ export default function AdminMenuPage() {
         plats: cat2Items.length > 0 ? {
           featured: (() => {
             const f = cat2Items.find(i => i.featured) || cat2Items[0];
+            const existingFeatured = (existing.plats?.featured ?? null) as { image_url?: string | null; image?: string | null } | null;
             return {
               name_pt: f.name_pt, name_fr: f.name_fr, name_en: f.name_en,
               price: f.price,
               description_pt: f.description_pt, description_fr: f.description_fr, description_en: f.description_en,
-              image_url: f.image_url || (existing.plats?.featured ? (existing.plats.featured as any).image_url || (existing.plats.featured as any).image : null) || null,
-              image: f.image_url || (existing.plats?.featured ? (existing.plats.featured as any).image_url || (existing.plats.featured as any).image : null) || undefined,
+              image_url: f.image_url || (existingFeatured ? existingFeatured.image_url || existingFeatured.image : null) || null,
+              image: f.image_url || (existingFeatured ? existingFeatured.image_url || existingFeatured.image : null) || undefined,
             };
           })(),
           secondary: cat2Items.filter(i => !i.featured && i !== cat2Items.find(x => x.featured) && i !== cat2Items[0]).map(i => ({
@@ -338,7 +339,13 @@ export default function AdminMenuPage() {
         const { data: existingItems } = await supabase
           .from('menu_items')
           .select('name_pt, badge_pt, badge_fr, badge_en, portion, tagline_pt, tagline_fr, tagline_en');
-        const existingMap = new Map((existingItems || []).map((e: any) => [e.name_pt, e]));
+        type ExistingExtras = {
+          name_pt: string;
+          badge_pt: string | null; badge_fr: string | null; badge_en: string | null;
+          portion: string | null;
+          tagline_pt: string | null; tagline_fr: string | null; tagline_en: string | null;
+        };
+        const existingMap = new Map<string, ExistingExtras>(((existingItems || []) as ExistingExtras[]).map((e) => [e.name_pt, e]));
 
         const rows = menuItems.filter(i => i.name_pt).map(i => {
           const existing = existingMap.get(i.name_pt);
@@ -475,10 +482,10 @@ export default function AdminMenuPage() {
     replaceItems(newItems as MenuItemRow[]);
   }
 
-  const dragIdRef = useRef<string | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
 
   function handleDragStart(ev: React.DragEvent, id: string) {
-    dragIdRef.current = id;
+    setDragId(id);
     ev.dataTransfer.effectAllowed = 'move';
   }
 
@@ -489,7 +496,7 @@ export default function AdminMenuPage() {
 
   function handleDrop(ev: React.DragEvent, targetId: string) {
     ev.preventDefault();
-    const sourceId = dragIdRef.current;
+    const sourceId = dragId;
     if (!sourceId || sourceId === targetId) return;
     const fFrom = filtered.findIndex((i) => i.id === sourceId);
     const fTo = filtered.findIndex((i) => i.id === targetId);
@@ -498,7 +505,7 @@ export default function AdminMenuPage() {
     const [moved] = reordered.splice(fFrom, 1);
     reordered.splice(fTo, 0, moved);
     handleReorder(reordered);
-    dragIdRef.current = null;
+    setDragId(null);
   }
 
   function toggleActive(item: MenuItemRow) {
@@ -731,8 +738,8 @@ export default function AdminMenuPage() {
                   onDragStart={(e) => handleDragStart(e, item.id)}
                   onDragOver={(e) => handleDragOver(e, item.id)}
                   onDrop={(e) => handleDrop(e, item.id)}
-                  onDragEnd={() => { dragIdRef.current = null; }}
-                  className={`cursor-grab active:cursor-grabbing ${dragIdRef.current === item.id ? 'opacity-30' : ''}`}
+                  onDragEnd={() => { setDragId(null); }}
+                  className={`cursor-grab active:cursor-grabbing ${dragId === item.id ? 'opacity-30' : ''}`}
                 >
                   {/* Image */}
                   <div className="relative h-32 bg-surface-container-high overflow-hidden cursor-pointer" onClick={() => openEdit(item)}>

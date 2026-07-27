@@ -25,7 +25,7 @@ interface MenuItemDisplay {
   type?: string;
 }
 
-function mapMenuItem(item: Record<string, any>, locale: Locale): MenuItemDisplay {
+function mapMenuItem(item: Record<string, unknown>, locale: Locale): MenuItemDisplay {
   let name = item.name_en;
   let description = item.description_en;
   let badge = item.badge_en;
@@ -88,18 +88,22 @@ async function fetchMenuItems(locale: Locale): Promise<{
       const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
       const res = await fetch(`${base}/api/local/menu`, { next: { revalidate: 0 } });
       if (res.ok) {
-        const data = await res.json();
-        if (data?.entrees?.featured?.length > 0) {
+        const data = (await res.json()) as {
+          entrees?: { featured?: Record<string, unknown>[]; list?: Record<string, unknown>[] };
+          plats?: { featured?: Record<string, unknown>; secondary?: Record<string, unknown>[] };
+          drinks_desserts?: Record<string, unknown>[];
+        };
+        if ((data.entrees?.featured?.length ?? 0) > 0) {
           return {
             entrees: {
-              featured: (data.entrees.featured || []).map((e: any) => mapMenuItem(e, locale)),
-              list: (data.entrees.list || []).map((e: any) => mapMenuItem(e, locale)),
+              featured: (data.entrees?.featured || []).map((e) => mapMenuItem(e, locale)),
+              list: (data.entrees?.list || []).map((e) => mapMenuItem(e, locale)),
             },
             plats: {
               featured: data.plats?.featured ? mapMenuItem(data.plats.featured, locale) : mapMenuItem(PLATS.featured, locale),
-              secondary: (data.plats?.secondary || []).map((p: any) => mapMenuItem(p, locale)),
+              secondary: (data.plats?.secondary || []).map((p) => mapMenuItem(p, locale)),
             },
-            drinks_desserts: (data.drinks_desserts || []).map((d: any) => mapMenuItem(d, locale)),
+            drinks_desserts: (data.drinks_desserts || []).map((d) => mapMenuItem(d, locale)),
           };
         }
       }

@@ -60,14 +60,14 @@ export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('general');
   const [saved, setSaved] = useState(false);
 
-  function updateField(path: string, value: any) {
+  function updateField(path: string, value: string | number | boolean) {
     setSettings((prev) => {
-      const copy = JSON.parse(JSON.stringify(prev));
+      const copy = JSON.parse(JSON.stringify(prev)) as Record<string, unknown>;
       const keys = path.split('.');
-      let obj: any = copy;
-      for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+      let obj: Record<string, unknown> = copy;
+      for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]] as Record<string, unknown>;
       obj[keys[keys.length - 1]] = value;
-      return copy;
+      return copy as unknown as RestaurantSettings;
     });
     setSaved(false);
   }
@@ -220,7 +220,7 @@ export default function AdminSettingsPage() {
                             <div key={lang} className="flex items-center gap-1">
                               <span className="text-[10px] font-label-caps text-on-surface-variant uppercase">{lang}</span>
                               <input
-                                className="w-28 bg-surface-container border border-outline-variant rounded-xl p-2 text-sm text-on-surface focus:ring-2 focus:ring-secondary outline-none"
+                                className="w-28 max-w-full bg-surface-container border border-outline-variant rounded-xl p-2 text-sm text-on-surface focus:ring-2 focus:ring-secondary outline-none"
                                 value={d.hours![lang]}
                                 onChange={(e) => updateField(`hours.${day}.hours.${lang}`, e.target.value)}
                               />

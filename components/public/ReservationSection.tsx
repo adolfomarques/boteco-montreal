@@ -24,7 +24,7 @@ export default function ReservationSection() {
   }, [router]);
 
   return (
-    <section className="py-section-gap relative overflow-hidden" id="reservas">
+    <section className="relative overflow-hidden pb-section-gap" id="reservas">
       <div className="absolute inset-0 z-0">
         <div
           className="w-full h-full bg-cover bg-center opacity-20 grayscale"

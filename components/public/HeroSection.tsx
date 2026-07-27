@@ -19,8 +19,11 @@ export default function HeroSection() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setCurrentIndex(Math.floor(Math.random() * VIDEOS.length));
+    const startId = setTimeout(() => {
+      setCurrentIndex(Math.floor(Math.random() * VIDEOS.length));
+    }, 0);
     return () => {
+      clearTimeout(startId);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
@@ -32,7 +35,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative h-screen min-h-[700px] flex items-center overflow-hidden">
+    <section className="relative h-[70vh] min-h-[480px] max-h-[640px] flex items-center overflow-hidden">
       <div className="absolute inset-0 z-10">
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-background/88 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/88 to-transparent" />

@@ -30,7 +30,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { items?: any[] };
+  const body = (await req.json()) as { items?: LocalGalleryItem[] };
   if (!body.items) return NextResponse.json({ ok: true });
 
   if (isSupabaseConfigured()) {

@@ -235,7 +235,7 @@ export default function AdminLandingPage() {
                         placeholder="https://images.unsplash.com/photo-..."
                       />
                     </div>
-                    <div className="w-24">
+                    <div className="w-24 max-w-full">
                       <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Preço (CAD)</label>
                       <input
                         type="number" step="0.01" min="0"

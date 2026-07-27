@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <>
       <HeroSection />
-      <Reveal variant="fade-up" delay={100}>
+      <Reveal variant="fade-in" delay={100}>
         <EventsSection />
       </Reveal>
       <Reveal variant="slide-left" delay={200}>

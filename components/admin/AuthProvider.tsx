@@ -41,7 +41,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     async function init() {
       if (!isSupabaseConfigured()) {
         const stored = localStorage.getItem(LOCAL_AUTH_KEY);

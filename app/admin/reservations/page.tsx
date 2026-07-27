@@ -84,13 +84,16 @@ function AdminReservationsPage() {
         setLoading(false);
       });
     } else {
-      const data = loadLocal();
-      setReservations(data);
-      setLoading(false);
-      if (!synced) {
-        syncToApi(data);
-        setSynced(true);
-      }
+      const id = setTimeout(() => {
+        const data = loadLocal();
+        setReservations(data);
+        setLoading(false);
+        if (!synced) {
+          syncToApi(data);
+          setSynced(true);
+        }
+      }, 0);
+      return () => clearTimeout(id);
     }
   }, [synced]);
 

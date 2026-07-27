@@ -35,7 +35,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as { reservations?: any[] };
+  const body = (await req.json()) as { reservations?: LocalReservation[] };
   if (body.reservations) {
     writeStore(STORAGE_KEY, body.reservations);
   }

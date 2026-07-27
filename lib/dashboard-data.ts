@@ -32,6 +32,7 @@ export interface EventData {
   icon: string;
   color: string;
   active: boolean;
+  highlight?: boolean;
 }
 
 export interface ReservationData {
@@ -41,6 +42,7 @@ export interface ReservationData {
   reservation_time: string;
   guests: number;
   status: string;
+  created_at?: string;
 }
 
 export interface HealthScore {
@@ -174,8 +176,8 @@ export function computeTranslationScores(items: MenuItemData[]): TranslationScor
   return langs.map(({ lang, label }) => {
     const total = items.length;
     const complete = items.filter(i => {
-      const name = (i as any)[`name_${lang}`];
-      const desc = (i as any)[`description_${lang}`];
+      const name = i[`name_${lang}` as 'name_pt' | 'name_fr' | 'name_en'];
+      const desc = i[`description_${lang}` as 'description_pt' | 'description_fr' | 'description_en'];
       return name && name.trim() !== '' && desc && desc.trim() !== '';
     }).length;
     const pct = total > 0 ? Math.round((complete / total) * 100) : 100;
@@ -247,7 +249,7 @@ export function computeDashboardTotals(items: MenuItemData[], events: EventData[
     totalReservations: reservations.length,
     todayReservations: getTodayReservations(reservations).length,
     recentReservations: [...reservations]
-      .sort((a: any, b: any) => new Date(b.created_at || b.id).getTime() - new Date(a.created_at || a.id).getTime())
+      .sort((a, b) => new Date(b.created_at || b.id).getTime() - new Date(a.created_at || a.id).getTime())
       .slice(0, 5),
   };
 }

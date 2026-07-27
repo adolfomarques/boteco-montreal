@@ -55,9 +55,13 @@ create table if not exists events (
   image_url text,
   sort_order int not null default 0,
   active boolean not null default true,
+  highlight boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Only one event can be highlighted at a time
+create unique index if not exists idx_events_single_highlight on events(highlight) where highlight = true;
 
 -- 4. reservations
 create table if not exists reservations (

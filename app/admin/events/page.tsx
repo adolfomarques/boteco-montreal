@@ -28,6 +28,7 @@ interface EventRow {
   image_url: string | null;
   sort_order: number;
   active: boolean;
+  highlight: boolean;
 }
 
 const EMPTY_FORM: Omit<EventRow, 'id'> = {
@@ -47,6 +48,7 @@ const EMPTY_FORM: Omit<EventRow, 'id'> = {
   image_url: '',
   sort_order: 0,
   active: true,
+  highlight: false,
 };
 
 function buildInitialEvents(): EventRow[] {
@@ -68,6 +70,7 @@ function buildInitialEvents(): EventRow[] {
     image_url: ev.image_url || null,
     sort_order: idx + 1,
     active: true,
+    highlight: false,
   }));
 }
 
@@ -168,6 +171,7 @@ export default function AdminEventsPage() {
       image_url: ev.image_url ?? '',
       sort_order: ev.sort_order,
       active: ev.active,
+      highlight: ev.highlight,
     });
     setSelectedImage(ev.image_url ?? null);
     setEditingId(ev.id);
@@ -192,12 +196,13 @@ export default function AdminEventsPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const record = { ...form, image_url: form.image_url || null };
-    const supabaseRecord = {
+    const supabaseRecord: Record<string, unknown> = {
       day_label: record.day_label,
       title_pt: record.title_pt, title_fr: record.title_fr, title_en: record.title_en,
       description_pt: record.description_pt, description_fr: record.description_fr, description_en: record.description_en,
       time_range: record.time_range, icon: record.icon, color: record.color,
       image_url: record.image_url, sort_order: record.sort_order, active: record.active,
+      highlight: record.highlight,
     };
 
     if (!isSupabaseConfigured()) {
@@ -282,6 +287,28 @@ export default function AdminEventsPage() {
       if (error) return;
       setEvents((prev) => prev.map((ev) => (ev.id === id ? { ...ev, active: !current } : ev)));
     });
+  }
+
+  async function handleToggleHighlight(id: string, current: boolean) {
+    if (!isSupabaseConfigured()) {
+      const updated = events.map((ev) => ({
+        ...ev,
+        highlight: ev.id === id ? !current : false,
+      }));
+      setEvents(updated);
+      saveLocalEvents(updated);
+      return;
+    }
+    const { error } = await supabase.from('events').update({ highlight: !current }).eq('id', id);
+    if (error) {
+      alert(`Error: ${error.message}`);
+      return;
+    }
+    const updated = events.map((ev) => ({
+      ...ev,
+      highlight: ev.id === id ? !current : false,
+    }));
+    setEvents(updated);
   }
 
   if (loading) {
@@ -373,6 +400,17 @@ export default function AdminEventsPage() {
                       title={ev.active ? 'Active' : 'Inactive'}
                     >
                       <span className="material-symbols-outlined text-sm">{ev.active ? 'visibility' : 'visibility_off'}</span>
+                    </button>
+                    <button
+                      onClick={() => handleToggleHighlight(ev.id, ev.highlight)}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
+                        ev.highlight
+                          ? 'bg-yellow-500/20 text-yellow-500'
+                          : 'bg-surface-container text-on-surface-variant hover:text-on-surface'
+                      }`}
+                      title={ev.highlight ? 'Em destaque' : 'Destacar'}
+                    >
+                      <span className="material-symbols-outlined text-sm">{ev.highlight ? 'star' : 'star_border'}</span>
                     </button>
                     <button
                       onClick={() => openEdit(ev)}
