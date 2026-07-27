@@ -35,7 +35,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden">
+    <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden pb-10 md:pb-0">
       <div className="absolute inset-0 z-10">
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-background/88 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/88 to-transparent" />
