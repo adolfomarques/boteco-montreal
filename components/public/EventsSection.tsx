@@ -98,9 +98,9 @@ export default async function EventsSection() {
   const preview = events.slice(0, 3);
 
   return (
-    <section className="bg-surface-container-lowest py-section-gap overflow-hidden">
+    <section className="bg-surface-container-lowest py-10 md:py-section-gap overflow-hidden">
       <div className="container-max">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <h2 className="font-display-mobile md:font-headline-md text-on-surface">{t('eventosPage.heroTitle')}</h2>
           <p className="text-on-surface-variant font-body-lg mt-4 max-w-xl mx-auto">{t('eventosPage.heroSubtitle')}</p>
           <div className="w-16 h-1 bg-secondary mx-auto mt-6 rounded-full opacity-50" />

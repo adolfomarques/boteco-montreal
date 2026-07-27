@@ -11,7 +11,7 @@ export default function Footer() {
   return (
     <footer className="bg-surface border-t border-outline-variant/10 scroll-mt-16 md:scroll-mt-20" id="contato">
       <div className="container-max pb-section-gap pt-4 md:pt-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
           <div className="md:col-span-1">
             <span className="font-headline-sm text-[18px] text-on-surface uppercase tracking-tight">
               Boteco Montreal

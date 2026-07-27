@@ -29,8 +29,8 @@ const FALLBACK_ITEMS: GalleryItem[] = [
   { type: 'image', src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC0LWBmAzLZdbEohlVvD8-jVqlEIL70jQjkOjov0FhZeEBAfl2DlfzL5okQ7_qZMOVxM7cj3gFgGczWvJo5QX-elqnNGRuM7fjiGpXbibbyZYslkSYWvdzHou7hquhcpRcucYLR0X4rjjHM7tVgXwFnvJ3KrhDipK5FGSDkSnS_IZr2-zHkx6kZ4dszO4iQsspVqc7hHauii6EK6H4VeUYnZHMhRZhI6VEufrBAa-Bg09EQIHoF0uZ3FDJ2UC5rkZUP2SWqLZhkloI' },
 ];
 
-const DESKTOP = { CARD_W: 420, CARD_H: 480, PEEK: 60 };
-const MOBILE = { CARD_W: 260, CARD_H: 300, PEEK: 40 };
+const DESKTOP = { CARD_W: 504, CARD_H: 576, PEEK: 72 };
+const MOBILE = { CARD_W: 312, CARD_H: 360, PEEK: 48 };
 const GAP = 5;
 
 export default function SocialGallery({ widgetId }: SocialGalleryProps) {
@@ -111,7 +111,7 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
 
   return (
     <section
-      className="overflow-hidden bg-background select-none pb-section-gap"
+      className="overflow-hidden bg-background select-none pb-10 md:pb-section-gap"
       role="region"
       aria-label={t('gallery.regionLabel')}
       tabIndex={widgetId ? -1 : 0}
@@ -123,7 +123,7 @@ export default function SocialGallery({ widgetId }: SocialGalleryProps) {
       onPointerDown={widgetId ? undefined : handlePointerDown}
       onPointerUp={widgetId ? undefined : handlePointerUp}
     >
-      <div className="container-max mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="container-max mb-8 md:mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h2 className="font-headline-md">{t('gallery.sectionTitle')}</h2>
         </div>

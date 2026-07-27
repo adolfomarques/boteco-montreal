@@ -12,13 +12,13 @@ export default function Home() {
       <Reveal variant="fade-in" delay={100}>
         <EventsSection />
       </Reveal>
-      <Reveal variant="slide-left" delay={200}>
+      <Reveal variant="fade-in" delay={200}>
         <MenuPreviewSection />
       </Reveal>
-      <Reveal variant="scale-in" delay={150}>
+      <Reveal variant="fade-in" delay={150}>
         <SocialGallery />
       </Reveal>
-      <Reveal variant="fade-up" delay={200}>
+      <Reveal variant="fade-in" delay={200}>
         <ReservationSection />
       </Reveal>
     </>

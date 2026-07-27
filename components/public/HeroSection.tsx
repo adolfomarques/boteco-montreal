@@ -35,7 +35,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative h-[70vh] min-h-[480px] max-h-[640px] flex items-center overflow-hidden">
+    <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden">
       <div className="absolute inset-0 z-10">
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-background/88 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/88 to-transparent" />
@@ -51,8 +51,8 @@ export default function HeroSection() {
         </video>
       </div>
 
-      <div className="relative z-20 container-max w-full">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-gutter">
+      <div className="relative z-20 container-max w-full mt-4 md:mt-0">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-stack-md md:gap-gutter">
           <div className="max-w-3xl flex-1">
             <span className="inline-block bg-secondary/20 text-secondary border border-secondary/30 px-3 py-1 rounded-full font-label-caps mb-stack-md backdrop-blur-sm">
               {t('hero.badge')}
@@ -70,7 +70,7 @@ export default function HeroSection() {
               {t('hero.titlePost')} <br />
               <span className="text-secondary italic">{t('hero.titleHighlight')}</span>
             </h1>
-            <p className="font-body-lg text-on-surface-variant mb-stack-lg max-w-xl">
+            <p className="font-body-lg text-on-surface-variant mb-stack-md max-w-xl">
               {t('hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-stack-md">

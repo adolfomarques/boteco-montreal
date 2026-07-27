@@ -92,9 +92,9 @@ export default function MenuPreviewSection() {
   }, []);
 
   return (
-    <section className="bg-surface-container-lowest border-y border-outline-variant/10 pb-section-gap" id="menu">
+    <section className="bg-surface-container-lowest border-y border-outline-variant/10 pb-10 md:pb-section-gap" id="menu">
       <div className="container-max">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <h2 className="font-display-mobile md:font-headline-md">{t('menuPreview.sectionTitle')}</h2>
           <p className="text-on-surface-variant font-body-lg mt-4 max-w-xl mx-auto">{t('menuPreview.sectionLabel')}</p>
           <div className="w-16 h-1 bg-secondary mx-auto mt-6 rounded-full opacity-50" />
