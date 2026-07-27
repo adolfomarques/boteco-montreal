@@ -52,7 +52,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-20 container-max w-full mt-4 md:mt-0">
-        <div className="flex flex-col lg:flex-row items-center lg:items-start flex-wrap gap-stack-md md:gap-gutter lg:gap-y-stack-md">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start flex-wrap gap-stack-md md:gap-gutter lg:gap-y-stack-sm">
           <div className="max-w-3xl flex-1">
             <span className="inline-block bg-secondary/20 text-secondary border border-secondary/30 px-3 py-1 rounded-full font-label-caps mb-stack-md backdrop-blur-sm">
               {t('hero.badge')}
