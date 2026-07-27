@@ -81,7 +81,8 @@ function mapMenuItem(item: Record<string, unknown>, locale: Locale): MenuItemDis
 async function fetchMenuItems(locale: Locale): Promise<{
   entrees: { featured: MenuItemDisplay[]; list: MenuItemDisplay[] };
   plats: { featured: MenuItemDisplay; secondary: MenuItemDisplay[] };
-  drinks_desserts: MenuItemDisplay[];
+  desserts: MenuItemDisplay[];
+  drinks: MenuItemDisplay[];
 }> {
   if (!isSupabaseConfigured()) {
     try {
@@ -94,6 +95,7 @@ async function fetchMenuItems(locale: Locale): Promise<{
           drinks_desserts?: Record<string, unknown>[];
         };
         if ((data.entrees?.featured?.length ?? 0) > 0) {
+          const all = data.drinks_desserts || [];
           return {
             entrees: {
               featured: (data.entrees?.featured || []).map((e) => mapMenuItem(e, locale)),
@@ -103,11 +105,13 @@ async function fetchMenuItems(locale: Locale): Promise<{
               featured: data.plats?.featured ? mapMenuItem(data.plats.featured, locale) : mapMenuItem(PLATS.featured, locale),
               secondary: (data.plats?.secondary || []).map((p) => mapMenuItem(p, locale)),
             },
-            drinks_desserts: (data.drinks_desserts || []).map((d) => mapMenuItem(d, locale)),
+            desserts: all.filter(d => (d.type_en as string) === 'DESSERT').map((d) => mapMenuItem(d, locale)),
+            drinks: all.filter(d => (d.type_en as string) !== 'DESSERT').map((d) => mapMenuItem(d, locale)),
           };
         }
       }
     } catch {}
+    const all = DRINKS_DESSERTS;
     return {
       entrees: {
         featured: ENTREES.featured.map(e => mapMenuItem(e, locale)),
@@ -117,7 +121,8 @@ async function fetchMenuItems(locale: Locale): Promise<{
         featured: mapMenuItem(PLATS.featured, locale),
         secondary: PLATS.secondary.map(p => mapMenuItem(p, locale)),
       },
-      drinks_desserts: DRINKS_DESSERTS.map(d => mapMenuItem(d, locale)),
+      desserts: all.filter(d => (d.type_en as string) === 'DESSERT').map(d => mapMenuItem(d, locale)),
+      drinks: all.filter(d => (d.type_en as string) !== 'DESSERT').map(d => mapMenuItem(d, locale)),
     };
   }
 
@@ -133,7 +138,8 @@ async function fetchMenuItems(locale: Locale): Promise<{
     const rows = data as unknown as (Record<string, unknown> & { menu_categories?: { slug: string } })[];
     const entrees = rows.filter(r => (r.menu_categories as { slug: string })?.slug === 'entrees');
     const plats = rows.filter(r => (r.menu_categories as { slug: string })?.slug === 'plats');
-    const drinks = rows.filter(r => ['desserts', 'bebidas'].includes((r.menu_categories as { slug: string })?.slug ?? ''));
+    const dessertsRows = rows.filter(r => (r.menu_categories as { slug: string })?.slug === 'desserts');
+    const drinksRows = rows.filter(r => (r.menu_categories as { slug: string })?.slug === 'bebidas');
 
     const featuredPlat = plats.find(p => p.featured as boolean);
 
@@ -146,9 +152,11 @@ async function fetchMenuItems(locale: Locale): Promise<{
         featured: featuredPlat ? mapMenuItem(featuredPlat, locale) : mapMenuItem(PLATS.featured, locale),
         secondary: plats.filter(p => !(p.featured as boolean)).map(p => mapMenuItem(p, locale)),
       },
-      drinks_desserts: drinks.map(d => mapMenuItem(d, locale)),
+      desserts: dessertsRows.map(d => mapMenuItem(d, locale)),
+      drinks: drinksRows.map(d => mapMenuItem(d, locale)),
     };
   } catch {
+    const all = DRINKS_DESSERTS;
     return {
       entrees: {
         featured: ENTREES.featured.map(e => mapMenuItem(e, locale)),
@@ -158,7 +166,8 @@ async function fetchMenuItems(locale: Locale): Promise<{
         featured: mapMenuItem(PLATS.featured, locale),
         secondary: PLATS.secondary.map(p => mapMenuItem(p, locale)),
       },
-      drinks_desserts: DRINKS_DESSERTS.map(d => mapMenuItem(d, locale)),
+      desserts: all.filter(d => (d.type_en as string) === 'DESSERT').map(d => mapMenuItem(d, locale)),
+      drinks: all.filter(d => (d.type_en as string) !== 'DESSERT').map(d => mapMenuItem(d, locale)),
     };
   }
 }
@@ -167,7 +176,7 @@ export default async function MenuPage() {
   const locale = await getLocale();
   const t = getTranslator(locale);
   const menuData = await fetchMenuItems(locale);
-  const { entrees, plats, drinks_desserts } = menuData;
+  const { entrees, plats, desserts, drinks } = menuData;
 
   const localizedCategories = CATEGORIES.map((cat) => ({
     ...cat,
@@ -316,20 +325,58 @@ export default async function MenuPage() {
           </div>
         </section>
 
-        <div id="desserts" className="scroll-mt-24" />
-        <section className="mb-section-gap scroll-mt-24" id="bebidas">
+        <section className="mb-section-gap scroll-mt-24" id="desserts">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            {drinks_desserts.map((item) => {
+            {desserts.length > 0 ? desserts.map((item) => {
               if (item.featured) {
                 return (
                   <div key={item.name} className="md:col-span-2 group relative rounded-2xl overflow-hidden h-[300px]">
-                <Image
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                  src={item.image || FALLBACK_ITEM_IMG}
-                  alt={item.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                    <Image
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      src={item.image || FALLBACK_ITEM_IMG}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 p-stack-md flex flex-col justify-center">
+                      <span className="font-label-caps text-[10px] text-secondary tracking-widest mb-2">{item.type}</span>
+                      <h3 className="font-headline-md mb-1">{item.name}</h3>
+                      <p className="text-on-surface-variant max-w-[240px] text-sm">{item.description}</p>
+                      <div className="mt-4">
+                        <span className="text-secondary text-2xl font-bold">{item.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div key={item.name} className="lg:col-span-1 glass-card p-stack-md rounded-xl border border-outline-variant/10">
+                  <div className="inline-block px-2 py-0.5 bg-secondary-container/30 text-secondary rounded-sm mb-4 font-label-caps text-[10px]">{item.type}</div>
+                  <h3 className="font-headline-sm mb-2">{item.name}</h3>
+                  <p className="text-on-surface-variant text-sm mb-4">{item.description}</p>
+                  <span className="text-secondary font-bold">{item.price}</span>
+                </div>
+              );
+            }) : (
+              <p className="text-on-surface-variant col-span-full text-center py-16">Aucun dessert disponible pour le moment.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="mb-section-gap scroll-mt-24" id="bebidas">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+            {drinks.map((item) => {
+              if (item.featured) {
+                return (
+                  <div key={item.name} className="md:col-span-2 group relative rounded-2xl overflow-hidden h-[300px]">
+                    <Image
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      src={item.image || FALLBACK_ITEM_IMG}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
                     <div className="absolute inset-0 p-stack-md flex flex-col justify-center">
                       <span className="font-label-caps text-[10px] text-secondary tracking-widest mb-2">{item.type}</span>
