@@ -316,7 +316,7 @@ export default async function MenuPage() {
           </div>
         </section>
 
-        <div id="desserts" />
+        <div id="desserts" className="scroll-mt-24" />
         <section className="mb-section-gap scroll-mt-24" id="bebidas">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
             {drinks_desserts.map((item) => {
