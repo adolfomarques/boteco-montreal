@@ -34,6 +34,22 @@ export default function HeroSection() {
     }, 5000);
   }, []);
 
+  const socialProofContent = (
+    <>
+      <div className="flex -space-x-3">
+        {[HERO_IMAGES.avatar1, HERO_IMAGES.avatar2, HERO_IMAGES.avatar3].map((src, i) => (
+          <div key={i} className="w-10 h-10 rounded-full border-2 border-surface overflow-hidden">
+            <Image src={src} alt={t('hero.altAvatar')} width={40} height={40} className="w-full h-full object-cover" />
+          </div>
+        ))}
+      </div>
+      <div>
+        <p className="font-label-caps text-[10px] text-secondary">{t('hero.hashtag')}</p>
+        <p className="font-body-md font-bold text-on-surface">{t('hero.socialProof')}</p>
+      </div>
+    </>
+  );
+
   return (
     <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden pb-10 md:pb-0">
       <div className="absolute inset-0 z-10">
@@ -107,18 +123,14 @@ export default function HeroSection() {
         </div>
       </div>
 
-      <div className="absolute bottom-10 right-gutter hidden lg:flex items-center gap-stack-md glass-card p-stack-md rounded-xl">
-        <div className="flex -space-x-3">
-          {[HERO_IMAGES.avatar1, HERO_IMAGES.avatar2, HERO_IMAGES.avatar3].map((src, i) => (
-            <div key={i} className="w-10 h-10 rounded-full border-2 border-surface overflow-hidden">
-              <Image src={src} alt={t('hero.altAvatar')} width={40} height={40} className="w-full h-full object-cover" />
-            </div>
-          ))}
+      {/* Social proof — in-flow on mobile, absolute bottom-right on md+ */}
+      <div className="md:hidden relative z-20 container-max w-full mt-stack-md">
+        <div className="flex items-center gap-stack-md glass-card p-stack-md rounded-xl w-fit">
+          {socialProofContent}
         </div>
-        <div>
-          <p className="font-label-caps text-[10px] text-secondary">{t('hero.hashtag')}</p>
-          <p className="font-body-md font-bold text-on-surface">{t('hero.socialProof')}</p>
-        </div>
+      </div>
+      <div className="hidden md:flex absolute bottom-10 right-gutter z-20 items-center gap-stack-md glass-card p-stack-md rounded-xl">
+        {socialProofContent}
       </div>
     </section>
   );
