@@ -51,7 +51,7 @@ export default function HeroSection() {
   );
 
   return (
-    <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden pb-10 md:pb-0">
+    <section className="relative h-auto md:h-[70vh] min-h-[480px] md:max-h-[640px] flex flex-col justify-center overflow-hidden">
       <div className="absolute inset-0 z-10">
         <div className="absolute inset-0 bg-gradient-to-t from-transparent via-background/88 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/88 to-transparent" />
@@ -129,7 +129,7 @@ export default function HeroSection() {
           {socialProofContent}
         </div>
       </div>
-      <div className="hidden md:flex absolute bottom-10 right-gutter z-20 items-center gap-stack-md glass-card p-stack-md rounded-xl">
+      <div className="hidden md:flex absolute bottom-0 right-gutter z-20 items-center gap-stack-md glass-card p-stack-md rounded-xl">
         {socialProofContent}
       </div>
     </section>
