@@ -83,10 +83,10 @@ export default function AdminSidebar() {
               {t('admin.sidebarUpdate')}
             </button>
             <div className="space-y-0.5">
-              <a className="flex items-center gap-3 px-3 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+              <Link className="flex items-center gap-3 px-3 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors" href="/admin/help">
                 <span className="material-symbols-outlined text-sm">help</span>
                 <span className="font-label-caps text-[11px]">{t('admin.sidebarHelp')}</span>
-              </a>
+              </Link>
               {adminUser && (
                 <div className="px-3 py-1.5 text-on-surface-variant text-[11px] font-label-caps truncate border-b border-outline-variant mb-1">
                   {adminUser.name || adminUser.email}
