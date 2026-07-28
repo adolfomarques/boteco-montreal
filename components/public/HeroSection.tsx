@@ -123,10 +123,11 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Social proof — in-flow on mobile, absolute bottom-right on md+ */}
-      <div className="md:hidden relative z-20 container-max w-full mt-stack-md">
-        <div className="flex items-center gap-stack-md glass-card p-stack-md rounded-xl w-fit">
-          {socialProofContent}
+      {/* Social proof — minimalist pill on mobile, full card bottom-right on md+ */}
+      <div className="md:hidden relative z-20 container-max w-full mt-stack-md flex justify-center">
+        <div className="flex items-center gap-1.5 glass-card px-4 py-2 rounded-full">
+          <span className="material-symbols-filled text-secondary text-base">star</span>
+          <p className="font-body-md font-bold text-on-surface text-sm">{t('hero.socialProof')}</p>
         </div>
       </div>
       <div className="hidden md:flex absolute bottom-0 right-gutter z-20 items-center gap-stack-md glass-card p-stack-md rounded-xl">
