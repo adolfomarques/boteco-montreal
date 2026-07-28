@@ -124,9 +124,9 @@ export default function HeroSection() {
       </div>
 
       {/* Social proof — minimalist pill on mobile, full card bottom-right on md+ */}
-      <div className="md:hidden relative z-20 container-max w-full mt-stack-md flex justify-center">
+      <div className="md:hidden relative z-20 container-max w-full mt-stack-md flex justify-end">
         <div className="flex items-center gap-1.5 glass-card px-4 py-2 rounded-full">
-          <span className="material-symbols-filled text-secondary text-base">star</span>
+          <span className="material-symbols-outlined text-secondary text-base" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>star</span>
           <p className="font-body-md font-bold text-on-surface text-sm">{t('hero.socialProof')}</p>
         </div>
       </div>
