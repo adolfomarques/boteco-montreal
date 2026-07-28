@@ -195,7 +195,6 @@ export default function AdminMenuPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<MenuItemRow, 'id'>>({ ...EMPTY_FORM });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showCatManager, setShowCatManager] = useState(false);
   const [showGlobalPrice, setShowGlobalPrice] = useState(false);
@@ -391,7 +390,6 @@ export default function AdminMenuPage() {
       sort_order: items.length + 1,
     });
     setEditingId(null);
-    setSelectedImage(null);
     setShowModal(true);
   }
 
@@ -408,7 +406,6 @@ export default function AdminMenuPage() {
       sort_order: item.sort_order,
     });
     setEditingId(item.id);
-    setSelectedImage(item.image_url);
     setShowModal(true);
   }
 

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import AdminTopBar from '@/components/admin/AdminTopBar';
 import type { LandingSettings, LandingItem } from '@/app/api/local/landing/route';
 import ImageUploadField from '@/components/admin/ImageUploadField';
@@ -186,85 +185,60 @@ export default function AdminLandingPage() {
               </div>
             </div>
 
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="w-full md:w-40 h-40 rounded-xl overflow-hidden bg-surface-container-high shrink-0 relative">
-                  {item.image_url ? (
-                    <>
-                      <Image className="object-cover" src={item.image_url} alt="" fill sizes="160px" />
-                      <button
-                        onClick={() => update(idx, 'image_url', '')}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors z-10"
-                      >
-                        <span className="material-symbols-outlined text-xs">close</span>
-                      </button>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant gap-1">
-                      <span className="material-symbols-outlined text-3xl">image</span>
-                      <span className="text-[10px] font-label-caps">Sem imagem</span>
-                    </div>
-                  )}
+            <div className="p-6 space-y-5">
+              <ImageUploadField
+                value={item.image_url || null}
+                onChange={(url) => update(idx, 'image_url', url ?? '')}
+                folder="landing"
+                label="Imagem do prato"
+              />
+
+              <div>
+                <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Nome do prato (3 idiomas)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+                  {([
+                    { key: 'name_pt' as const, placeholder: 'Nome do prato' },
+                    { key: 'name_fr' as const, placeholder: 'Nom du plat' },
+                    { key: 'name_en' as const, placeholder: 'Dish name' },
+                  ]).map(field => (
+                    <input
+                      key={field.key}
+                      className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                      value={item[field.key] as string}
+                      onChange={e => update(idx, field.key, e.target.value)}
+                      placeholder={field.placeholder}
+                    />
+                  ))}
                 </div>
+              </div>
 
-                <div className="flex-1 space-y-4 min-w-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {([
-                      { key: 'name_pt' as const, label: 'Português', placeholder: 'Nome do prato' },
-                      { key: 'name_fr' as const, label: 'Français', placeholder: 'Nom du plat' },
-                      { key: 'name_en' as const, label: 'English', placeholder: 'Dish name' },
-                    ]).map(field => (
-                      <div key={field.key}>
-                        <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">{field.label}</label>
-                        <input
-                          className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
-                          value={item[field.key] as string}
-                          onChange={e => update(idx, field.key, e.target.value)}
-                          placeholder={field.placeholder}
-                        />
-                      </div>
-                    ))}
-                  </div>
+              <div className="w-32">
+                <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Preço (CAD)</label>
+                <input
+                  type="number" step="0.01" min="0"
+                  className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                  value={item.price || ''}
+                  onChange={e => update(idx, 'price', parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
+                />
+              </div>
 
-                  <div className="flex gap-3">
-                    <div className="flex-1">
-                      <ImageUploadField
-                        value={item.image_url || null}
-                        onChange={(url) => update(idx, 'image_url', url ?? '')}
-                        folder="landing"
-                        label="Imagem"
-                      />
-                    </div>
-                    <div className="w-24 max-w-full">
-                      <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Preço (CAD)</label>
-                      <input
-                        type="number" step="0.01" min="0"
-                        className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
-                        value={item.price || ''}
-                        onChange={e => update(idx, 'price', parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Descrição (3 idiomas)</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
-                      {([
-                        { key: 'description_pt' as const, placeholder: 'Descrição em português' },
-                        { key: 'description_fr' as const, placeholder: 'Description en français' },
-                        { key: 'description_en' as const, placeholder: 'Description in English' },
-                      ]).map(field => (
-                        <textarea
-                          key={field.key}
-                          className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
-                          value={item[field.key] as string}
-                          onChange={e => update(idx, field.key, e.target.value)}
-                          placeholder={field.placeholder}
-                        />
-                      ))}
-                    </div>
-                  </div>
+              <div>
+                <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">Descrição (3 idiomas)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+                  {([
+                    { key: 'description_pt' as const, placeholder: 'Descrição em português' },
+                    { key: 'description_fr' as const, placeholder: 'Description en français' },
+                    { key: 'description_en' as const, placeholder: 'Description in English' },
+                  ]).map(field => (
+                    <textarea
+                      key={field.key}
+                      className="h-20 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface resize-none outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow"
+                      value={item[field.key] as string}
+                      onChange={e => update(idx, field.key, e.target.value)}
+                      placeholder={field.placeholder}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

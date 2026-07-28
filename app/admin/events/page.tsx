@@ -124,7 +124,6 @@ export default function AdminEventsPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<EventRow, 'id'>>({ ...EMPTY_FORM });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -150,7 +149,6 @@ export default function AdminEventsPage() {
   function openNew() {
     setForm({ ...EMPTY_FORM });
     setEditingId(null);
-    setSelectedImage(null);
     setShowModal(true);
   }
 
@@ -174,7 +172,6 @@ export default function AdminEventsPage() {
       active: ev.active,
       highlight: ev.highlight,
     });
-    setSelectedImage(ev.image_url ?? null);
     setEditingId(ev.id);
     setShowModal(true);
   }
