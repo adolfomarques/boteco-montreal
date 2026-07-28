@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { isSupabaseConfigured } from '@/components/admin/AuthProvider';
 import AdminTopBar from '@/components/admin/AdminTopBar';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 interface GalleryItem {
   id: string;
@@ -180,6 +181,17 @@ export default function AdminGalleryPage() {
               <span className="material-symbols-outlined">add</span>
               Add
             </button>
+          </div>
+
+          {/* Upload option */}
+          <div className="mt-4 pt-4 border-t border-outline-variant/10">
+            <ImageUploadField
+              value={newUrl || null}
+              onChange={(url) => { if (url) setNewUrl(url); }}
+              folder="gallery"
+              accept={newType}
+              label={`Ou envie ${newType === 'image' ? 'uma imagem' : 'um video'} do seu computador`}
+            />
           </div>
         </section>
 

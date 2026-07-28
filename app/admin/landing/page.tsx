@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import AdminTopBar from '@/components/admin/AdminTopBar';
 import type { LandingSettings, LandingItem } from '@/app/api/local/landing/route';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 const EMPTY_ITEM: LandingItem = {
   name_pt: '', name_fr: '', name_en: '',
@@ -227,12 +228,11 @@ export default function AdminLandingPage() {
 
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label className="text-[10px] font-label-caps text-on-surface-variant tracking-wider">URL da Imagem</label>
-                      <input
-                        className="w-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50 transition-shadow font-mono text-xs"
-                        value={item.image_url}
-                        onChange={e => update(idx, 'image_url', e.target.value)}
-                        placeholder="https://images.unsplash.com/photo-..."
+                      <ImageUploadField
+                        value={item.image_url || null}
+                        onChange={(url) => update(idx, 'image_url', url ?? '')}
+                        folder="landing"
+                        label="Imagem"
                       />
                     </div>
                     <div className="w-24 max-w-full">

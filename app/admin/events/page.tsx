@@ -7,6 +7,7 @@ import AdminTopBar from '@/components/admin/AdminTopBar';
 import { supabase } from '@/lib/supabase';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { WEEKLY_EVENTS } from '@/lib/data/events';
+import ImageUploadField from '@/components/admin/ImageUploadField';
 
 const COLOR_OPTIONS = ['primary', 'secondary', 'tertiary'] as const;
 
@@ -450,37 +451,12 @@ export default function AdminEventsPage() {
 
               <div className="p-6 space-y-6">
                 {/* Image Section */}
-                <div className="flex flex-col md:flex-row gap-6">
-                  <div className="w-full md:w-48 h-48 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
-                    {selectedImage && (selectedImage.startsWith('http://') || selectedImage.startsWith('https://')) ? (
-                      <div className="relative w-full h-full">
-                        <Image className="object-cover" src={selectedImage} alt="Preview" fill sizes="192px" />
-                        <button
-                          type="button"
-                          onClick={() => { setSelectedImage(null); updateForm('image_url', ''); }}
-                          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-sm">close</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center text-on-surface-variant gap-2">
-                        <span className="material-symbols-outlined text-3xl">image</span>
-                        <span className="text-[10px] font-label-caps">Preview</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <label className="text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">{t('admin.eventsImage')}</label>
-                    <input
-                      className="w-full bg-surface-container-low border border-outline-variant/20 rounded-xl p-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-secondary/50"
-                      value={form.image_url ?? ''}
-                      onChange={(e) => { updateForm('image_url', e.target.value); setSelectedImage(e.target.value || null); }}
-                      placeholder={t('admin.eventsImageDesc')}
-                    />
-                    <p className="text-[10px] text-on-surface-variant">Insira uma URL pública de imagem ou deixe vazio para usar um placeholder.</p>
-                  </div>
-                </div>
+                <ImageUploadField
+                  value={form.image_url ?? null}
+                  onChange={(url) => updateForm('image_url', url ?? '')}
+                  folder="events"
+                  label={t('admin.eventsImage')}
+                />
 
                 {/* Time + Day Label */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
